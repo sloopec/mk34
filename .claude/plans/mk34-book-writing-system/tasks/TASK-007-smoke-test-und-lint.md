@@ -1,9 +1,9 @@
 # TASK-007: Lokaler Smoke-Test und Lint
-Status: ⏳ pending
-Depends-on: [TASK-006]
-Parallel: no
+Status: ⏳ ausstehend
+Abhängig von: [TASK-006]
+Parallel: nein
 
-## Description
+## Beschreibung
 Verifizieren, dass das Grundgeruest laeuft — bevor Eval aufgesetzt wird.
 
 ```bash
@@ -20,7 +20,7 @@ Zusaetzlich einen Lauf **ohne** laufende lokale VM machen und pruefen, dass der 
 
 Dies ist ein Smoke-Test, **kein** Verhaltenstest. Keine pytest-Assertions auf LLM-Textinhalte.
 
-## Acceptance Criteria
+## Akzeptanzkriterien
 - [ ] `agents-cli lint` ist gruen
 - [ ] `uv run pytest` (Unit-Tests aus TASK-002/004/005) ist gruen
 - [ ] Beide `agents-cli run`-Prompts liefern plausible Antworten
@@ -28,5 +28,5 @@ Dies ist ein Smoke-Test, **kein** Verhaltenstest. Keine pytest-Assertions auf LL
 - [ ] `agents-cli playground` startet und der Agent ist bedienbar
 - [ ] Lauf ohne lokale VM erzeugt eine klare Fehlermeldung, keinen stillen Cloud-Fallback
 
-## Affected Files
+## Betroffene Dateien
 - keine Codeaenderung erwartet; ggf. Fixes an `app/prompts/scene.py`, `app/tools/*`

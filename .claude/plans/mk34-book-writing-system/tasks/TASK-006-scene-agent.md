@@ -1,9 +1,9 @@
 # TASK-006: Scene Agent (erster Agent)
-Status: ⏳ pending
-Depends-on: [TASK-002, TASK-004, TASK-005]
-Parallel: no
+Status: ⏳ ausstehend
+Abhängig von: [TASK-002, TASK-004, TASK-005]
+Parallel: nein
 
-## Description
+## Beschreibung
 Erster produktiver Agent — der einfachste vollstaendige Use-Case: aus Kontext eine Szene schreiben.
 
 ```python
@@ -30,14 +30,14 @@ In Phase 1 laeuft der Scene Agent als `root_agent`, damit `agents-cli run` / `pl
 
 **Keine Safety-Callbacks/Plugins auf diesem Agent** — bewusste Projektentscheidung (Plan: Non-Goals).
 
-## Acceptance Criteria
+## Akzeptanzkriterien
 - [ ] `agents-cli run "Schreibe Kapitel 1, Szene 1"` erzeugt eine Szene, die den Kontext aus dem Store nachweislich verwendet
 - [ ] Der Text landet ueber `write_scene` in `books/life_link/manuscript/kapitel_01.md`
 - [ ] Kein Meta-Kommentar, keine Ueberschrift, keine Platzhalter im Output
 - [ ] Sprachregister wird eingehalten (stichprobenhaft manuell geprueft, spaeter per Eval-Metrik)
 - [ ] Modellwahl kommt ausschliesslich aus `model_for("scene")`
 
-## Affected Files
+## Betroffene Dateien
 - `app/agent.py`
 - `app/agents/__init__.py`
 - `app/agents/scene_agent.py`

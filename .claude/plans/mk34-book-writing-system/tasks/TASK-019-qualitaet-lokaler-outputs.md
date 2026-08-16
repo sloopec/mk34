@@ -1,9 +1,9 @@
 # TASK-019: Qualitaetssicherung fuer lokale Outputs
-Status: ⏳ pending
-Depends-on: [TASK-018]
-Parallel: no
+Status: ⏳ ausstehend
+Abhängig von: [TASK-018]
+Parallel: nein
 
-## Description
+## Beschreibung
 Ein 26B-Q4-Modell schreibt anders als Opus 5. Ohne Angleichung liest sich das Manuskript stellenweise wie zwei Buecher.
 
 Massnahmen:
@@ -14,14 +14,14 @@ Massnahmen:
 
 Nicht loesen wollen: das lokale Modell auf Opus-Niveau zu bringen. Ziel ist, dass die Naht nicht sichtbar ist.
 
-## Acceptance Criteria
+## Akzeptanzkriterien
 - [ ] Jede lokal generierte Szene durchlaeuft zwingend den Editor
 - [ ] Der Editor-Prompt fuer lokale Outputs entschaerft den Inhalt nachweislich nicht
 - [ ] Stil-Fingerprint-Tool implementiert; Ausreisser werden gemeldet
 - [ ] `character_voice_consistency` ≥ 4/5 auf lokalen Cases nach Editor-Durchlauf
 - [ ] Unterschreitet eine Szene die Schwelle, entsteht eine `.draft.md`, keine finale Datei
 
-## Affected Files
+## Betroffene Dateien
 - `app/agents/editor_agent.py`
 - `app/prompts/editor.py` (Variante fuer lokale Outputs)
 - `app/tools/style_fingerprint.py`

@@ -1,9 +1,9 @@
 # TASK-011: Editor Agent (Lektorat)
-Status: ⏳ pending
-Depends-on: [TASK-008]
-Parallel: yes
+Status: ⏳ ausstehend
+Abhängig von: [TASK-008]
+Parallel: ja
 
-## Description
+## Beschreibung
 Lektorats-Agent — prueft und ueberarbeitet Rohtext.
 
 - **Input:** roher Szenentext (`{scene_draft}` aus dem State) + `{scene_context}` + optional `{continuity_report}`
@@ -31,14 +31,14 @@ class QualityChecker(BaseAgent):
             yield Event(author=self.name)
 ```
 
-## Acceptance Criteria
+## Akzeptanzkriterien
 - [ ] Editor liefert ueberarbeiteten Text **und** ein strukturiertes Verdikt (`grade`, `issues[]`)
 - [ ] Registerverletzungen werden zuverlaessig erkannt und korrigiert (Testfall: David sagt „Naniten")
 - [ ] `QualityChecker` eskaliert korrekt bei `pass` und nicht bei `needs_revision`
 - [ ] Editor aendert keine Handlungsfakten, nur Sprache/Stil/Pacing — Plotaenderungen werden als Anmerkung ausgegeben
 - [ ] Der Editor laeuft nachweislich auch ueber lokal generierten Text
 
-## Affected Files
+## Betroffene Dateien
 - `app/agents/editor_agent.py`
 - `app/agents/quality_checker.py`
 - `app/prompts/editor.py`

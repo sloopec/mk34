@@ -1,9 +1,9 @@
 # TASK-009: Plot Agent
-Status: ⏳ pending
-Depends-on: [TASK-008]
-Parallel: yes
+Status: ⏳ ausstehend
+Abhängig von: [TASK-008]
+Parallel: ja
 
-## Description
+## Beschreibung
 Agent fuer Plot-Entwicklung und Akt-Struktur.
 
 - **Input:** grobe Idee oder Akt-/Phasennummer (Phase 0–5 aus `basics.md`)
@@ -28,14 +28,14 @@ class SceneBeat(BaseModel):
 
 Die Beats werden nach `books/life_link/store/plot_outline.json` zurueckgeschrieben; die Datei bleibt die Wahrheit.
 
-## Acceptance Criteria
+## Akzeptanzkriterien
 - [ ] Plot Agent liefert fuer eine Phase aus `basics.md` eine vollstaendige Beat-Liste
 - [ ] Beats validieren gegen das `SceneBeat`-Schema
 - [ ] `update_plot_outline` schreibt idempotent nach `plot_outline.json`, ohne bestehende Akte zu zerstoeren
 - [ ] Beats widersprechen nicht dem etablierten Kanon (manuelle Durchsicht + spaeter Continuity-Eval)
 - [ ] `agents-cli run "Entwickle Phase 2 in Szenen-Beats"` funktioniert
 
-## Affected Files
+## Betroffene Dateien
 - `app/agents/plot_agent.py`
 - `app/prompts/plot.py`
 - `app/schemas.py`

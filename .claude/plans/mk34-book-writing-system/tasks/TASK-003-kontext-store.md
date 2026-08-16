@@ -1,9 +1,9 @@
 # TASK-003: Kontext-Store aus basics.md aufbauen
-Status: ⏳ pending
-Depends-on: [TASK-001]
-Parallel: yes
+Status: ⏳ ausstehend
+Abhängig von: [TASK-001]
+Parallel: ja
 
-## Description
+## Beschreibung
 Die Buchgrundlagen liegen als Fliesstext in `books/life_link/idea/basics.md` (Praemisse, Technologie, Figuren, Handlungsphasen 0–5, Themen, ELI5-Beispiele, Beispielszenen A–E). Daraus wird ein strukturierter, git-versionierter Store abgeleitet.
 
 Zielstruktur:
@@ -31,7 +31,7 @@ Pflicht-Inhalte im `style_guide.md`, weil sie spaeter Eval-Metriken sind:
 
 Extraktion darf einmalig LLM-gestuetzt erfolgen, das Ergebnis wird aber **vom Autor geprueft und eingecheckt** — der Store ist ab dann die Wahrheit, nicht `basics.md`.
 
-## Acceptance Criteria
+## Akzeptanzkriterien
 - [ ] Alle Dateien existieren, sind valides JSON/Markdown und eingecheckt
 - [ ] `characters.json` enthaelt pro Figur: `name`, `role`, `language_register`, `motivation`, `arc`, `knowledge_state`, `first_appearance`
 - [ ] `plot_outline.json` bildet Phase 0–5 aus `basics.md` vollstaendig ab
@@ -39,7 +39,7 @@ Extraktion darf einmalig LLM-gestuetzt erfolgen, das Ergebnis wird aber **vom Au
 - [ ] `style_guide.md` enthaelt die Sprachregister-Tabelle pro Figur
 - [ ] Keine Referenz auf den nicht existierenden Pfad `src/setup/basics.md` irgendwo im Repo
 
-## Affected Files
+## Betroffene Dateien
 - `books/life_link/store/characters.json`
 - `books/life_link/store/plot_outline.json`
 - `books/life_link/store/world_bible.md`

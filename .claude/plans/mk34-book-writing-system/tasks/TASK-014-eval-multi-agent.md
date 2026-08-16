@@ -1,9 +1,9 @@
 # TASK-014: Eval fuer Multi-Agent-Trajektorie
-Status: ⏳ pending
-Depends-on: [TASK-013]
-Parallel: no
+Status: ⏳ ausstehend
+Abhängig von: [TASK-013]
+Parallel: nein
 
-## Description
+## Beschreibung
 Phase-2-Gate. Die Eval-Suite wird von „liefert der Agent eine gute Antwort" auf „nimmt das System den richtigen Weg" erweitert.
 
 **Neues Dataset** `tests/eval/datasets/multi-agent.json` — Multi-Turn-Cases entlang der Beispielszenen aus `basics.md`:
@@ -35,7 +35,7 @@ agents-cli eval compare artifacts/grade_results/<phase1>.json artifacts/grade_re
 
 Erwartung: 5–10+ Iterationen pro Case. Fixes gehen in Instructions und Tool-Descriptions, nicht in die Schwellenwerte.
 
-## Acceptance Criteria
+## Akzeptanzkriterien
 - [ ] `multi-agent.json` enthaelt mindestens 4 Multi-Turn-Cases
 - [ ] `tool_use_quality` ≥ 4/5 und `trajectory_quality` ≥ 4/5
 - [ ] `character_voice_consistency` ≥ 4/5
@@ -46,7 +46,7 @@ Erwartung: 5–10+ Iterationen pro Case. Fixes gehen in Instructions und Tool-De
 - [ ] Score-Tabelle dokumentiert
 - [ ] Eine Task-Liste der gefixten/offenen Cases wird waehrend der Iteration gefuehrt
 
-## Affected Files
+## Betroffene Dateien
 - `tests/eval/datasets/multi-agent.json`
 - `tests/eval/eval_config.yaml`
 - `tests/eval/mk34_eval/rubrics/` (neue Rubriken)

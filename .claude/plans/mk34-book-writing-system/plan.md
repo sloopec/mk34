@@ -6,7 +6,7 @@
 
 ---
 
-## Goals
+## Ziele
 
 - Ein Multi-Agenten-System auf Google ADK, das die Funktionalitaet von Sudowrite und NovelCrafter vereint und um modell-agnostisches Routing, unzensierte lokale Modelle und strukturiertes Manuskript-Management erweitert.
 - Erstes Zielprojekt: der Techno-Thriller **"Life Link"** (`books/life_link/`).
@@ -14,7 +14,7 @@
 - Bewusste Modell-Heterogenitaet: Cloud-Modelle (Claude via LiteLLM) fuer Reasoning/Lektorat, **lokales unzensiertes Modell** fuer Szenen, die Cloud-Anbieter ablehnen wuerden.
 - Qualitaet wird messbar gemacht: jede Phase hat einen `agents-cli eval`-Gate, nicht nur „liest sich gut".
 
-## Non-Goals
+## Nicht-Ziele
 
 - **Keine Cloud-Deployment-Phase im Erstausbau.** Das System laeuft lokal (Prototype-Scaffold). `agents-cli deploy` / `publish` / Agent Runtime / Gemini Enterprise sind explizit Non-Goals, bis der Autoren-Workflow steht. Der Upgrade-Pfad ist dokumentiert (siehe *Tooling*), wird aber nicht umgesetzt.
 - Kein Multi-User-Betrieb, keine Auth, keine Web-UI ausser dem mitgelieferten `agents-cli playground`.
@@ -24,7 +24,7 @@
 
 ---
 
-## Architecture Overview
+## Architekturübersicht
 
 ### Aenderungen gegenueber `docs/PLAN.md` (Begruendung)
 
@@ -126,7 +126,7 @@ Vor Implementierung zu klonen und zu studieren (`git clone --filter=blob:none --
 
 ---
 
-## Component Responsibilities
+## Komponenten-Verantwortlichkeiten
 
 ### `app/agent.py` — Orchestrator (root_agent)
 - Nimmt High-Level-Befehle entgegen und routet an Sub-Agents bzw. startet die Schreib-Pipeline.
@@ -204,7 +204,7 @@ Reine FunctionTools, alle mit Typannotationen ohne Defaults, dict-Return und Doc
 
 ---
 
-## Sequence Flow
+## Ablaufsequenz
 
 ### Happy Path — „Schreibe Kapitel 3, Szene 2"
 
@@ -233,7 +233,7 @@ Reine FunctionTools, alle mit Typannotationen ohne Defaults, dict-Return und Doc
 
 ---
 
-## Configuration
+## Konfiguration
 
 Pydantic-Settings + `.env` im Projektroot. Secrets **nie** im Repo (`.env` ist gitignored).
 
@@ -271,7 +271,7 @@ Pydantic-Settings + `.env` im Projektroot. Secrets **nie** im Repo (`.env` ist g
 | Style Agent | Claude Opus 5 | `anthropic/claude-opus-5` | Feinschliff |
 | Content-Classifier (P4) | Claude Haiku 4.5 | `anthropic/claude-haiku-4-5` | billige, haeufige Ja/Nein-Entscheidung |
 
-Hinweis: ADK/agents-cli scaffolden per Default Gemini-Modelle. Die Abweichung auf Claude+lokal ist eine bewusste Entscheidung; sie wird beim Scaffolding explizit ueberschrieben (siehe Open Questions #1).
+Hinweis: ADK/agents-cli scaffolden per Default Gemini-Modelle. Die Abweichung auf Claude+lokal ist eine bewusste Entscheidung; sie wird beim Scaffolding explizit ueberschrieben (siehe Offene Fragen #1).
 
 ---
 
@@ -295,7 +295,7 @@ Alles laeuft ueber `agents-cli` (v1.3.1). Keine handgebauten Skripte, wo die CLI
 | Metrik-Katalog | `agents-cli eval metric list` — nur informativ; die gelisteten Built-ins sind ohne GCP nicht nutzbar |
 | Fehleranalyse | `agents-cli eval analyze` — **nicht verfuegbar** (nur `global`-Endpoint, braucht GCP). Ersatz: die `.html`-Reports in `artifacts/grade_results/` plus die `explanation`-Felder der eigenen Judge-Funktionen. |
 | Prompt-Optimierung (nur auf Zuruf, teuer) | `agents-cli eval optimize --dataset ... --target-metric ...` |
-| Observability | siehe Open Questions #3 — lokal genuegt `agents-cli run -v` + strukturierte Logs; Cloud Trace scheidet mit E1 aus |
+| Observability | siehe Offene Fragen #3 — lokal genuegt `agents-cli run -v` + strukturierte Logs; Cloud Trace scheidet mit E1 aus |
 | Deploy / Publish | **Non-Goal.** Pfad dokumentiert: `agents-cli scaffold enhance . --deployment-target cloud_run` → `agents-cli deploy`. |
 
 `uv` ist die Paket-/Env-Ebene darunter, kein Ersatz fuer `agents-cli` — `agents-cli install` ruft intern `uv sync` auf, `agents-cli run`/`playground`/`lint`/`eval` fuehren im selben `uv`-Environment aus. Wo ein `agents-cli`-Kommando existiert (s. Tabelle oben), wird das benutzt, nicht der rohe `uv`-Aufruf. Direktes `uv run ...` bleibt nur fuer das, was die CLI nicht abdeckt: eigene Hilfsskripte, `pytest`-Laeufe, Adhoc-Checks.
@@ -304,7 +304,7 @@ Alles laeuft ueber `agents-cli` (v1.3.1). Keine handgebauten Skripte, wo die CLI
 
 ---
 
-## Evaluation Plan
+## Evaluationsplan
 
 Eval ist der Gate jeder Phase. Erwartung laut Skill: **5–10+ Iterationen pro Case**, bevor er besteht.
 
@@ -350,7 +350,7 @@ Die Zuordnung liegt **an der Rubrik**, nicht am Aufrufort — jede Rubrik regist
 | `eli5_quality` | LLM-Judge | **fast** | Sind Wissenschaftserklaerungen als Metapher im Dialog verpackt, nicht als Lexikoneintrag? | 2 |
 | **`character_voice_consistency`** | LLM-Judge | **craft** (`claude-opus-5`) | Register pro Figur: David = Laienbegriffe („Nanobots", „Chips"), Sarah/Voss/Aris = praezise Terminologie („Naniten", „Assembler", „Emergenz"). Rubrik 1–5. | 1 |
 | **`show_dont_tell`** | LLM-Judge | **craft** | Wird Emotion gezeigt statt benannt? | 2 |
-| `scene_word_count_in_range` | deterministisch | — | Zielkorridor pro Szene (Open Question #4). | 1 |
+| `scene_word_count_in_range` | deterministisch | — | Zielkorridor pro Szene (Offene Frage #4). | 1 |
 | `pov_character_present` | deterministisch | — | Kommt die POV-Figur des Beats vor? | 2 |
 | `no_placeholder_text` | deterministisch | — | Kein „[TODO]", „[Name einsetzen]", „Lorem". | 1 |
 | `terminology_leak` | deterministisch | — | David benutzt nie „Naniten"; Wissenschaftler nie „Nanobots". | 1 |
@@ -474,12 +474,12 @@ Pandoc-Export (EPUB/PDF/DOCX) mit Kapitel-Metadaten, Gesamtmanuskript-Review, St
 | E2 | Retrieval-Backend fuer Continuity | **Lokal.** Stufe 1: SQLite FTS5/BM25 ueber Szenen-Chunks. Stufe 2 (nur bei Recall-Failure): sqlite-vec + lokales Embedding-Modell, RRF-Hybrid. Kein Vertex Vector Search. | *Continuity Agent → Retrieval-Backend* ergaenzt. Entblockt **TASK-015**. |
 | E3 | Session-Persistenz | **`DatabaseSessionService` mit SQLite ab dem ersten Setup**, nicht `InMemorySessionService` und nicht erst in Phase 5. | *Architecture → Session-Persistenz* ergaenzt; `MK34_SESSION_DB_URL` in *Configuration*; Acceptance Criteria in TASK-001 und TASK-013; TASK-020 verweist darauf, dass die Voraussetzung fuer `rewind_async` bereits steht. |
 | E4 | Judge-Modell pro Rubrik | **Zweistufig, verbindlich ab TASK-008** (nicht erst ab einer Suite-Groesse): `claude-sonnet-5` fuer die deterministiknahen Rubriken, `claude-opus-5` nur fuer `character_voice_consistency` und `show_dont_tell`. | Zwei Variablen `MK34_JUDGE_MODEL_FAST` / `MK34_JUDGE_MODEL_CRAFT`; Judge-Spalte in den Metrik-Tabellen; `judge()` waehlt anhand der Rubrik-Registrierung, nicht am Call-Site. |
+| E5 | Buch-Datenverzeichnis (vormals Offene Frage #2) | **`books/life_link/` bleibt ausserhalb des scaffoldeten Agent-Projekts, im Repo-Root**, getrennt von Code (`mk34-book-agent/`). Tool-Pfade referenzieren spaeter relativ nach oben (`../../books/life_link/...` bzw. ueber `MK34_BOOK_ROOT`). | Bestaetigt in TASK-001. Betrifft alle Tool-Pfade in TASK-004 (Manuskript-Tools) und TASK-005 (Kontext-Loader-Tools); `MK34_BOOK_ROOT` in *Configuration* zeigt weiterhin auf `books/life_link`, jetzt relativ zum Repo-Root statt zum Agent-Verzeichnis. |
 
-## Open Questions
+## Offene Fragen
 
 1. **Scaffold-Default vs. Modellwahl.** `agents-cli scaffold create` erzeugt Agenten mit Gemini-Default; der Code-Preservation-Grundsatz sagt „Modell nie ungefragt aendern". Hier *ist* die Aenderung gewuenscht — der Umbau auf `LiteLlm(...)` in TASK-002 ist explizit beauftragt. Bestaetigen.
    *(Betrifft nur die Produktiv-Agenten. Die Eval-Judges laufen ueber den Anthropic-SDK direkt, nicht ueber ADK/LiteLLM — siehe E4.)*
-2. **Buch-Datenverzeichnis.** Bleibt `books/life_link/` ausserhalb des scaffoldeten Agent-Projekts (Vorschlag: ja, Trennung Code/Content) oder wandert es unter das Agent-Verzeichnis? Betrifft alle Tool-Pfade.
-3. **Observability lokal.** Reicht `agents-cli run -v` + strukturierte Logs? Cloud Trace / BigQuery Agent Analytics scheiden mit E1 faktisch aus (kein GCP) — die Minimalvariante aus TASK-022 duerfte damit gesetzt sein; bestaetigen.
-4. **Wortzahl-Korridore.** Fuer `scene_word_count_in_range` fehlen Zielwerte pro Szenentyp. Vom Autor zu setzen.
-5. **Hardware-Realitaet.** `docs/LOCAL_MODEL_VM_SETUP.md` rechnet mit 5–15 tok/s → 2–5 Min pro Szene. Bei Varianten-Generierung (Phase 5, `--variants 3`) sind das 6–15 Min. Akzeptabel oder braucht es einen Batch-/Nacht-Modus?
+2. **Observability lokal.** Reicht `agents-cli run -v` + strukturierte Logs? Cloud Trace / BigQuery Agent Analytics scheiden mit E1 faktisch aus (kein GCP) — die Minimalvariante aus TASK-022 duerfte damit gesetzt sein; bestaetigen.
+3. **Wortzahl-Korridore.** Fuer `scene_word_count_in_range` fehlen Zielwerte pro Szenentyp. Vom Autor zu setzen.
+4. **Hardware-Realitaet.** `docs/LOCAL_MODEL_VM_SETUP.md` rechnet mit 5–15 tok/s → 2–5 Min pro Szene. Bei Varianten-Generierung (Phase 5, `--variants 3`) sind das 6–15 Min. Akzeptabel oder braucht es einen Batch-/Nacht-Modus?

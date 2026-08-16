@@ -1,9 +1,9 @@
 # TASK-008: Eval-Baseline (Dataset, Config, erster Lauf)
-Status: ⏳ pending
-Depends-on: [TASK-007]
-Parallel: no
+Status: ⏳ ausstehend
+Abhängig von: [TASK-007]
+Parallel: nein
 
-## Description
+## Beschreibung
 Der Qualitaets-Gate fuer Phase 1. Klein anfangen: 1–2 Cases, iterieren, erst dann erweitern.
 
 **Entscheidung E1: Grading laeuft vollstaendig lokal.** Kein GCP-Projekt, kein `agents-cli login`. Konsequenz: die managed Built-in-Metriken (`final_response_quality`, `multi_turn_tool_use_quality`, `hallucination`, …) laufen server-seitig im Agent Platform Eval Service und stehen **nicht** zur Verfuegung. `metrics_to_run` enthaelt ausschliesslich `custom_metrics` mit `custom_function` (`execution: local`, Default) — dann grade't `agents-cli eval grade` in-process ohne Projekt und ohne Region. `agents-cli eval analyze` entfaellt ebenfalls (nur `global`-Endpoint).
@@ -35,7 +35,7 @@ Der Qualitaets-Gate fuer Phase 1. Klein anfangen: 1–2 Cases, iterieren, erst d
 | `character_voice_consistency` | LLM-Judge, Rubrik 1–5 | `craft` |
 | `no_placeholder_text` | deterministisch — kein `[TODO]`, `[Name`, `Lorem` | — |
 | `terminology_leak` | deterministisch — David nie „Naniten", Wissenschaftler nie „Nanobots" | — |
-| `scene_word_count_in_range` | deterministisch — Korridor aus Open Question #4 | — |
+| `scene_word_count_in_range` | deterministisch — Korridor aus Offene Frage #4 | — |
 
 **`safety` bewusst NICHT** — widerspricht dem unzensierten Scene Agent; auch keine lokale Nachbildung.
 
@@ -48,7 +48,7 @@ Ergebnisse liegen in `artifacts/grade_results/results_<ts>.{json,html}`. Bei Fai
 
 Judge-Determinismus: der Judge-Aufruf laeuft mit fixer Rubrik und erzwungenem JSON-Schema; bei schwankenden Scores wird die Rubrik geschaerft, nicht die Schwelle gesenkt.
 
-## Acceptance Criteria
+## Akzeptanzkriterien
 - [ ] `tests/eval/datasets/basic-dataset.json` und `tests/eval/eval_config.yaml` sind eingecheckt
 - [ ] **`agents-cli eval run` laeuft ohne gesetztes `GOOGLE_CLOUD_PROJECT` und ohne `agents-cli login` erfolgreich durch** — das ist der eigentliche Nachweis fuer E1
 - [ ] `metrics_to_run` enthaelt ausschliesslich Eintraege aus `custom_metrics`; kein Built-in-Name
@@ -61,7 +61,7 @@ Judge-Determinismus: der Judge-Aufruf laeuft mit fixer Rubrik und erzwungenem JS
 - [ ] Die Score-Tabelle ist im PR/Commit dokumentiert (Nachweis statt Behauptung)
 - [ ] `safety` steht nicht in `metrics_to_run`, mit Begruendungskommentar in der YAML
 
-## Affected Files
+## Betroffene Dateien
 - `tests/eval/datasets/basic-dataset.json`
 - `tests/eval/eval_config.yaml`
 - `tests/eval/mk34_eval/judge.py`, `tests/eval/mk34_eval/trace.py`

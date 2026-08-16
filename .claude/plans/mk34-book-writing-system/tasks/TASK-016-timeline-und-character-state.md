@@ -1,9 +1,9 @@
 # TASK-016: Timeline- und Character-State-Tracking
-Status: ⏳ pending
-Depends-on: [TASK-015]
-Parallel: yes
+Status: ⏳ ausstehend
+Abhängig von: [TASK-015]
+Parallel: ja
 
-## Description
+## Beschreibung
 Automatische Pflege von Chronologie und Figurenzustand nach jeder geschriebenen Szene.
 
 **Timeline** (`app/tools/timeline.py`, Persistenz `books/life_link/store/timeline.json`):
@@ -19,14 +19,14 @@ Pro Kapitel je Figur: Ort, Wissensstand, emotionaler Zustand, Infektionsstatus (
 
 Beide Updates laufen als Post-Write-Schritt der Pipeline, nicht als freie LLM-Entscheidung — die Extraktion ist LLM-gestuetzt, das Schreiben deterministisch ueber Tools.
 
-## Acceptance Criteria
+## Akzeptanzkriterien
 - [ ] `timeline.json` wird nach jedem `write_scene` automatisch fortgeschrieben
 - [ ] `validate_chronology()` erkennt einen kuenstlich eingebauten Zeitsprung und einen Parallelitaets-Konflikt
 - [ ] `knowledge_state` pro Figur und Kapitel wird gepflegt
 - [ ] Der Continuity Agent nutzt beide Quellen in `check_consistency`
 - [ ] pytest deckt Timeline-Validierung mit Fixtures ab
 
-## Affected Files
+## Betroffene Dateien
 - `app/tools/timeline.py`
 - `app/tools/characters.py`
 - `books/life_link/store/timeline.json`

@@ -1,10 +1,10 @@
 # TASK-022: Observability und Logging (optional)
-Status: ⏳ pending
-Depends-on: [TASK-013]
-Parallel: yes
+Status: ⏳ ausstehend
+Abhängig von: [TASK-013]
+Parallel: ja
 
-## Description
-Querschnittsaufgabe. Mit Entscheidung E1 (kein GCP-Projekt) scheiden Cloud Trace und BigQuery Agent Analytics faktisch aus — die Minimalvariante ist damit gesetzt; formale Bestaetigung steht noch aus (Open Question #3).
+## Beschreibung
+Querschnittsaufgabe. Mit Entscheidung E1 (kein GCP-Projekt) scheiden Cloud Trace und BigQuery Agent Analytics faktisch aus — die Minimalvariante ist damit gesetzt; formale Bestaetigung steht noch aus (Offene Frage #3).
 
 **Minimalvariante (gesetzt):**
 - `agents-cli run -v` fuer Ad-hoc-Debugging (volle Event-JSONs, Tool-Calls, Zwischenschritte)
@@ -18,8 +18,8 @@ Cloud Trace, Prompt-Response-Logging, BigQuery Agent Analytics (`BigQueryAgentAn
 
 Bewusst nicht geloggt: der volle Szenentext im Klartext in externe Systeme — der Stoff ist teils explizit, und das lokale Modell laeuft genau deshalb in einer verschluesselten VM (`docs/LOCAL_MODEL_VM_SETUP.md`).
 
-## Acceptance Criteria
-- [ ] Bestaetigung zu Open Question #3 ist eingeholt und in `plan.md` vermerkt
+## Akzeptanzkriterien
+- [ ] Bestaetigung zu Offene Frage #3 ist eingeholt und in `plan.md` vermerkt
 - [ ] Strukturiertes Lauf-Protokoll pro Szene wird geschrieben (Modell, Route, Iterationen, Konflikte, Kosten)
 - [ ] Judge-Kosten pro Eval-Lauf werden erfasst, getrennt nach Stufe `fast` / `craft`
 - [ ] Aus den Daten laesst sich beantworten, ob die E4-Aufteilung richtig geschnitten ist (Anteil craft an den Gesamtkosten, Auffaelligkeiten bei einzelnen Rubriken)
@@ -27,7 +27,7 @@ Bewusst nicht geloggt: der volle Szenentext im Klartext in externe Systeme — d
 - [ ] Kein Szenentext verlaesst die lokale Umgebung ueber Logging-Kanaele
 - [ ] Kosten pro Kapitel sind aus den Logs ableitbar
 
-## Affected Files
+## Betroffene Dateien
 - `app/app_utils/observability.py`
 - `app/agent.py` (Plugin-Registrierung)
 - `docs/OBSERVABILITY.md`

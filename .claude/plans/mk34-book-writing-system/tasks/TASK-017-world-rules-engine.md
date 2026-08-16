@@ -1,9 +1,9 @@
 # TASK-017: World-Rules-Engine
-Status: ⏳ pending
-Depends-on: [TASK-015]
-Parallel: yes
+Status: ⏳ ausstehend
+Abhängig von: [TASK-015]
+Parallel: ja
 
-## Description
+## Beschreibung
 Die Naniten-Regeln aus `world_bible.md` werden zu harten, pruefbaren Constraints — nicht nur zu Prompt-Prosa.
 
 Regelbasis aus `basics.md`:
@@ -21,14 +21,14 @@ Zweistufig: deterministische Checks (Terminologie, verbotene Begriffe) in Python
 
 Ergebnis fliesst in `check_consistency` und in die Eval-Metrik `world_rule_compliance`.
 
-## Acceptance Criteria
+## Akzeptanzkriterien
 - [ ] Alle 7 Regeln sind in `world_bible.md` nummeriert und maschinenlesbar referenzierbar
 - [ ] `validate_world_rules` erkennt Testverletzungen (z. B. „die Naniten meldeten sich beim Server", „winzige Metallmaennchen")
 - [ ] Terminologie-Check ist deterministisch und figurenbezogen
 - [ ] Verletzungen blockieren das Schreiben genauso wie Continuity-Konflikte
 - [ ] Eval-Metrik `world_rule_compliance` ist in `eval_config.yaml` aktiv
 
-## Affected Files
+## Betroffene Dateien
 - `books/life_link/store/world_bible.md`
 - `app/tools/consistency.py`
 - `tests/eval/metrics/world_rule_compliance.py`

@@ -1,9 +1,9 @@
 # TASK-004: Manuskript-Tools (read/write/list/stats)
-Status: ⏳ pending
-Depends-on: [TASK-003]
-Parallel: yes
+Status: ⏳ ausstehend
+Abhängig von: [TASK-003]
+Parallel: ja
 
-## Description
+## Beschreibung
 FunctionTools fuer den Manuskript-Zugriff in `app/tools/manuscript.py`.
 
 - `read_manuscript(chapter: int) -> dict` — Kapiteltext oder `{"status": "not_found"}`
@@ -17,14 +17,14 @@ Szenengrenzen werden ueber Markdown-Marker realisiert (z. B. `<!-- scene:2 -->`)
 
 Sicherheit: alle Pfade gegen `MK34_BOOK_ROOT` kanonisieren und Traversal (`..`, absolute Pfade) ablehnen — Kapitel-/Szenennummern kommen aus Modell-Output.
 
-## Acceptance Criteria
+## Akzeptanzkriterien
 - [ ] Alle vier Tools implementiert, mit Docstrings, dict-Return, `{"status": ...}`-Konvention
 - [ ] `write_scene` ersetzt eine bestehende Szene idempotent und legt fehlende Kapiteldateien an
 - [ ] Pfad-Traversal wird abgelehnt (pytest)
 - [ ] Fehlerfaelle liefern `{"status": "error", "message": ...}` statt Exceptions
 - [ ] pytest deckt read/write/list/stats gegen ein Fixture-Manuskript ab
 
-## Affected Files
+## Betroffene Dateien
 - `app/tools/__init__.py`
 - `app/tools/manuscript.py`
 - `tests/unit/test_manuscript_tools.py`

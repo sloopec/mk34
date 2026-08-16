@@ -1,9 +1,9 @@
 # TASK-013: Schreib-Pipeline (SequentialAgent + LoopAgent)
-Status: ⏳ pending
-Depends-on: [TASK-012]
-Parallel: no
+Status: ⏳ ausstehend
+Abhängig von: [TASK-012]
+Parallel: nein
 
-## Description
+## Beschreibung
 Die deterministische Kette „Szene schreiben" als Workflow-Agent — nicht als LLM-Delegation, weil die Reihenfolge fest ist und nicht vom Modell entschieden werden soll.
 
 ```python
@@ -29,7 +29,7 @@ Persistenz erst am Ende: `write_scene(...)` schreibt die finale Fassung; ein abg
 
 Factory-Funktionen **aufrufen**, nicht referenzieren (`create_x()`, nicht `create_x`) — sonst `ValidationError`.
 
-## Acceptance Criteria
+## Akzeptanzkriterien
 - [ ] Die Pipeline laeuft end-to-end fuer „Schreibe Kapitel 3, Szene 2"
 - [ ] Jeder Schritt liest nachweislich den State des Vorgaengers (im `-v`-Output sichtbar)
 - [ ] Der Editor-Loop terminiert bei `pass` vorzeitig (nicht immer 3 Durchlaeufe)
@@ -38,7 +38,7 @@ Factory-Funktionen **aufrufen**, nicht referenzieren (`create_x()`, nicht `creat
 - [ ] Eine Pipeline-Session ueberlebt einen Prozess-Neustart und laesst sich per `--session-id` fortsetzen (setzt den `DatabaseSessionService` aus TASK-001 voraus)
 - [ ] `ResumabilityConfig(is_resumable=True)` am `App` gesetzt, damit unterbrochene Laeufe fortsetzbar sind
 
-## Affected Files
+## Betroffene Dateien
 - `app/pipelines/__init__.py`
 - `app/pipelines/writing.py`
 - `app/agent.py`

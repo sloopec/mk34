@@ -1,9 +1,9 @@
 # TASK-010: Character Agent und Figuren-Tools
-Status: ⏳ pending
-Depends-on: [TASK-008]
-Parallel: yes
+Status: ⏳ ausstehend
+Abhängig von: [TASK-008]
+Parallel: ja
 
-## Description
+## Beschreibung
 Agent fuer Figurenkonsistenz und -entwicklung, plus die zugehoerigen Tools in `app/tools/characters.py`.
 
 **Tools:**
@@ -28,14 +28,14 @@ from google.adk.tools import AgentTool
 tools=[AgentTool(character_agent), ...]
 ```
 
-## Acceptance Criteria
+## Akzeptanzkriterien
 - [ ] Alle vier Tools implementiert, dict-Return, Docstrings, Pfadsicherung
 - [ ] Character Agent liefert einen Figuren-Brief mit Register, Motivation, aktuellem Wissensstand
 - [ ] `AgentTool`-Einbindung im Scene Agent funktioniert (Tool-Call im `-v`-Output sichtbar)
 - [ ] `update_character` schreibt idempotent nach `characters.json`
 - [ ] Der Agent widerspricht explizit, wenn eine Szene Wissen voraussetzt, das die Figur nicht haben kann
 
-## Affected Files
+## Betroffene Dateien
 - `app/agents/character_agent.py`
 - `app/prompts/character.py`
 - `app/tools/characters.py`

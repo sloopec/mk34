@@ -1,9 +1,9 @@
 # TASK-005: Kontext-Loader-Tools
-Status: ⏳ pending
-Depends-on: [TASK-003]
-Parallel: yes
+Status: ⏳ ausstehend
+Abhängig von: [TASK-003]
+Parallel: ja
 
-## Description
+## Beschreibung
 FunctionTools, die den Story-Kanon in den Agenten-Kontext holen — `app/tools/context_loader.py`.
 
 - `load_world_bible() -> dict` — Naniten-Regeln und Weltenbau
@@ -17,14 +17,14 @@ Wichtig: der State wird ueber ein `before_agent_callback` vorinitialisiert, dami
 
 Bei grossem Kanon: `ContextCacheConfig` am `App` erwaegen, damit die stabilen Teile (World Bible, Style Guide) nicht in jedem Turn neu bezahlt werden.
 
-## Acceptance Criteria
+## Akzeptanzkriterien
 - [ ] Alle vier Tools implementiert, dict-Return, Docstrings
 - [ ] `load_scene_context` liefert Beat, Figurenliste inkl. Sprachregister und die anwendbaren Weltregeln in einem Aufruf
 - [ ] `initialize_state`-Callback setzt `book_slug`, `active_chapter`, `active_scene`, `scene_context` auf Defaults
 - [ ] Kein `KeyError` beim ersten Turn im Playground
 - [ ] pytest deckt die Loader gegen den Fixture-Store ab
 
-## Affected Files
+## Betroffene Dateien
 - `app/tools/context_loader.py`
 - `app/callbacks.py`
 - `tests/unit/test_context_loader.py`

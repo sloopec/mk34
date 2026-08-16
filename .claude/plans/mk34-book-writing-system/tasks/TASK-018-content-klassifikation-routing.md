@@ -1,9 +1,9 @@
 # TASK-018: Content-Klassifikation und lokales Routing
-Status: ⏳ pending
-Depends-on: [TASK-016, TASK-017]
-Parallel: no
+Status: ⏳ ausstehend
+Abhängig von: [TASK-016, TASK-017]
+Parallel: nein
 
-## Description
+## Beschreibung
 Kernstueck von Phase 4: automatische Entscheidung, ob eine Szene lokal (unzensiert) oder in der Cloud geschrieben wird.
 
 **Classifier-Agent:**
@@ -26,7 +26,7 @@ Kernstueck von Phase 4: automatische Entscheidung, ob eine Szene lokal (unzensie
 - `--ctx-size` und `--threads` gegen die reale Hardware tunen
 - Kontext-Caching fuer die stabilen Kanon-Teile
 
-## Acceptance Criteria
+## Akzeptanzkriterien
 - [ ] Classifier liefert strukturierte Routing-Entscheidungen mit Begruendung
 - [ ] `tests/eval/datasets/uncensored-routing.json` (Szene B und E aus `basics.md` u. a.) wird zu 100 % korrekt geroutet
 - [ ] Manueller Override funktioniert und schlaegt den Classifier
@@ -34,7 +34,7 @@ Kernstueck von Phase 4: automatische Entscheidung, ob eine Szene lokal (unzensie
 - [ ] Streaming ist aktiv; eine 1000-Woerter-Szene bleibt im dokumentierten Zeitrahmen
 - [ ] Der Preflight-Health-Check laeuft, bevor die Pipeline startet
 
-## Affected Files
+## Betroffene Dateien
 - `app/agents/classifier_agent.py`
 - `app/models/router.py`
 - `app/pipelines/writing.py`

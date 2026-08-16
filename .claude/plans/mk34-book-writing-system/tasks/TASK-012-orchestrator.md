@@ -1,9 +1,9 @@
 # TASK-012: Orchestrator als Coordinator-Root-Agent
-Status: ⏳ pending
-Depends-on: [TASK-009, TASK-010, TASK-011]
-Parallel: no
+Status: ⏳ ausstehend
+Abhängig von: [TASK-009, TASK-010, TASK-011]
+Parallel: nein
 
-## Description
+## Beschreibung
 `root_agent` wird vom Scene Agent auf den Orchestrator umgestellt (ADK Coordinator-Pattern).
 
 ```python
@@ -29,14 +29,14 @@ Zustandsuebergaben laufen ueber `session.state` (`active_chapter`, `active_scene
 
 `App(name="app")` muss dem Agent-Verzeichnis entsprechen — sonst „Session not found" beim Eval.
 
-## Acceptance Criteria
+## Akzeptanzkriterien
 - [ ] `root_agent` ist der Orchestrator; `agents-cli playground` zeigt Delegation an die richtigen Sub-Agents
 - [ ] „Entwickle Akt 2" geht an den Plot Agent, „Schreibe 3.2" an die Pipeline, „Ueberarbeite 3.2" an den Editor
 - [ ] Der Orchestrator schreibt selbst keinen Szenentext
 - [ ] `initialize_state` verhindert `KeyError` auf allen `{state_key}`-Injections
 - [ ] Sub-Agents werden ueber Factory-Funktionen instanziiert (kein „agent already has a parent")
 
-## Affected Files
+## Betroffene Dateien
 - `app/agent.py`
 - `app/prompts/orchestrator.py`
 - `app/callbacks.py`

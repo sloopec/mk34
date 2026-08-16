@@ -1,9 +1,9 @@
 # TASK-021: Export und finaler Polish
-Status: ⏳ pending
-Depends-on: [TASK-020]
-Parallel: no
+Status: ⏳ ausstehend
+Abhängig von: [TASK-020]
+Parallel: nein
 
-## Description
+## Beschreibung
 Phase 6 — vom Manuskript zum fertigen Buch.
 
 **1. Export-Formate** (`app/tools/export.py`, via Pandoc):
@@ -19,7 +19,7 @@ Wegen Manuskriptlaenge kapitelweise plus aggregierender Durchlauf ueber die Kapi
 **3. Style-Transfer**
 Gesamtes Manuskript auf einheitlichen Stil pruefen; Szenen aus unterschiedlichen Modellen angleichen (nutzt den Stil-Fingerprint aus TASK-019); Sprachregister pro Figur final validieren.
 
-## Acceptance Criteria
+## Akzeptanzkriterien
 - [ ] Alle drei Exportformate erzeugen valide Dateien mit korrekten Kapitel-Metadaten
 - [ ] Pandoc-Abhaengigkeit ist dokumentiert und im Setup geprueft
 - [ ] Gesamtreview liefert eine priorisierte Liste (Redundanzen, offene Subplots, Pacing)
@@ -27,7 +27,7 @@ Gesamtes Manuskript auf einheitlichen Stil pruefen; Szenen aus unterschiedlichen
 - [ ] Sprachregister-Validierung ueber das Gesamtmanuskript ist fehlerfrei
 - [ ] Finaler `agents-cli eval run` zeigt keine Regression
 
-## Affected Files
+## Betroffene Dateien
 - `app/tools/export.py`
 - `app/agents/style_agent.py`
 - `app/prompts/style.py`

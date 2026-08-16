@@ -1,9 +1,9 @@
 # TASK-015: Continuity Agent mit Retrieval
-Status: ⏳ pending
-Depends-on: [TASK-014]
-Parallel: no
+Status: ⏳ ausstehend
+Abhängig von: [TASK-014]
+Parallel: nein
 
-## Description
+## Beschreibung
 Faktencheck neuer Szenen gegen das bisherige Manuskript.
 
 **Wichtige Korrektur gegenueber dem Originalplan:** Der Agent liest **nicht** „das gesamte bisherige Manuskript". Bei 30+ Kapiteln sprengt das jedes Kontextfenster und Budget. Stattdessen Retrieval:
@@ -38,7 +38,7 @@ cat core/python/rag-vector-search/AGENTS.md
 
 Bei gefundenem Konflikt wird die Szene **nicht** geschrieben — Konfliktliste raus, Autor entscheidet.
 
-## Acceptance Criteria
+## Akzeptanzkriterien
 - [ ] SQLite-FTS5-Index wird aus dem Manuskript reproduzierbar aufgebaut (`make index` oder `mk34 index rebuild`), Index ist gitignored
 - [ ] Chunk-Grenze ist die Szene; alle Metadatenfelder sind pro Chunk gesetzt
 - [ ] Query kombiniert Metadaten-Filter und BM25; Treffer enthalten `chapter`/`scene`-Referenz
@@ -49,7 +49,7 @@ Bei gefundenem Konflikt wird die Szene **nicht** geschrieben — Konfliktliste r
 - [ ] `tests/eval/datasets/continuity.json` mit absichtlich eingebauten Widerspruechen erkennt 100 % der Faelle
 - [ ] Recall von Stufe 1 ist gemessen und dokumentiert; Stufe 2 wird nur bei Unterschreitung gebaut (Entscheidung im Plan vermerken)
 
-## Affected Files
+## Betroffene Dateien
 - `app/agents/continuity_agent.py`
 - `app/tools/consistency.py`
 - `app/retrieval/index.py` (FTS5-Ingestion), `app/retrieval/query.py`

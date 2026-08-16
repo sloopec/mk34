@@ -1,9 +1,9 @@
 # TASK-020: Workflow und Iteration (Feedback, Varianten, CLI)
-Status: ⏳ pending
-Depends-on: [TASK-019]
-Parallel: no
+Status: ⏳ ausstehend
+Abhängig von: [TASK-019]
+Parallel: nein
 
-## Description
+## Beschreibung
 Phase 5 — der Autoren-Workflow. Erst hier kommt die eigene CLI; bis dahin genuegten `agents-cli run` und `agents-cli playground`.
 
 **1. Feedback-Loop**
@@ -11,7 +11,7 @@ Phase 5 — der Autoren-Workflow. Erst hier kommt die eigene CLI; bis dahin genu
 
 **2. Varianten-System**
 `mk34 write --chapter 3 --scene 2 --variants 3` — drei Fassungen derselben Szene plus Vergleich mit Staerken/Schwaechen.
-Achtung Laufzeit: lokal 2–5 Min pro Szene → 6–15 Min fuer drei Varianten (Open Question #8: Batch-/Nacht-Modus?).
+Achtung Laufzeit: lokal 2–5 Min pro Szene → 6–15 Min fuer drei Varianten (Offene Frage #8: Batch-/Nacht-Modus?).
 
 **3. Rewrite-Modes**
 `--mode tighter` (kuerzen), `--mode expand` (ausbauen), `--mode pov-switch --character Sarah` (Perspektivwechsel).
@@ -31,7 +31,7 @@ Wortzahl pro Kapitel/gesamt, Figuren-Auftritte, Spannungskurve (Plot-Agent bewer
 
 **6. CLI** — duenner Typer-Wrapper ueber den ADK-`Runner`. Enthaelt **keine** Agentenlogik; jedes Kommando mappt auf einen Runner-Aufruf.
 
-## Acceptance Criteria
+## Akzeptanzkriterien
 - [ ] `mk34 feedback|write|rewrite|stats` implementiert, alle ueber den ADK-Runner
 - [ ] Diff-Ansicht alt/neu funktioniert
 - [ ] Varianten-Generierung liefert n Fassungen plus Vergleichsanalyse
@@ -42,7 +42,7 @@ Wortzahl pro Kapitel/gesamt, Figuren-Auftritte, Spannungskurve (Plot-Agent bewer
 - [ ] Statistiken sind korrekt gegen ein Fixture-Manuskript (pytest)
 - [ ] `agents-cli eval compare` zeigt keine Regression gegenueber Phase 4
 
-## Affected Files
+## Betroffene Dateien
 - `app/cli/__init__.py`, `app/cli/main.py`
 - `app/tools/manuscript.py` (Statistiken, Diff)
 - `app/agents/rewrite_agent.py`
