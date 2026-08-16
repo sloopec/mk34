@@ -298,7 +298,7 @@ Alles laeuft ueber `agents-cli` (v1.3.1). Keine handgebauten Skripte, wo die CLI
 | Observability | siehe Open Questions #3 — lokal genuegt `agents-cli run -v` + strukturierte Logs; Cloud Trace scheidet mit E1 aus |
 | Deploy / Publish | **Non-Goal.** Pfad dokumentiert: `agents-cli scaffold enhance . --deployment-target cloud_run` → `agents-cli deploy`. |
 
-Python-Ausfuehrung immer ueber `uv` (`uv sync`, `uv run ...`).
+`uv` ist die Paket-/Env-Ebene darunter, kein Ersatz fuer `agents-cli` — `agents-cli install` ruft intern `uv sync` auf, `agents-cli run`/`playground`/`lint`/`eval` fuehren im selben `uv`-Environment aus. Wo ein `agents-cli`-Kommando existiert (s. Tabelle oben), wird das benutzt, nicht der rohe `uv`-Aufruf. Direktes `uv run ...` bleibt nur fuer das, was die CLI nicht abdeckt: eigene Hilfsskripte, `pytest`-Laeufe, Adhoc-Checks.
 
 **Kein pytest auf LLM-Output.** pytest prueft Code-Korrektheit (Tools lesen/schreiben die richtigen Pfade, JSON-Schemas, Router liefert die richtige `BaseLlm`-Instanz). Verhalten wird ausschliesslich per `agents-cli eval` geprueft.
 
