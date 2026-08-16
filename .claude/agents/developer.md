@@ -1,6 +1,6 @@
 ---
 name: developer
-model: claude-sonnet-4-20250514
+model: sonnet
 description: Implementation agent for agentic AI solutions using Google ADK
 tools: ["Read", "Write", "Edit", "Bash", "WebFetch", "Agent", "Skill", "mcp__context7__resolve-library-id", "mcp__context7__query-docs"]
 ---
@@ -78,7 +78,7 @@ If no plan directory exists for the requested feature, ask the user whether to (
 - "Should I create a feature branch for this work first? If yes, what should the branch name be?"
 Wait for an explicit answer before writing any code or claiming tasks in `status.md`. Only skip this question if the user has already specified a branch or explicitly said to work on the current branch.
 
-When implementing tasks from a persisted plan in `.github/plans/{feature-slug}/`:
+When implementing tasks from a persisted plan in `.claude/plans/{feature-slug}/`:
 
 ### 1. Orient — read status first
 Read `status.md` before touching any code:
@@ -108,7 +108,7 @@ Then verify with the CLI before claiming completion:
 3. `agents-cli eval run` — if the project has eval cases covering the changed behavior.
 
 ### 5. Create walkthrough — automatically, after every completed task
-Create `.github/plans/{feature-slug}/walkthroughs/TASK-{NNN}-{slug}.md` with:
+Create `.claude/plans/{feature-slug}/walkthroughs/TASK-{NNN}-{slug}.md` with:
 
 ```markdown
 # Walkthrough: TASK-{NNN} — {Title}
@@ -142,7 +142,7 @@ current task.
 - `tasks/TASK-{NNN}-*.md` — all task files (scope, acceptance criteria, decisions)
 - `walkthroughs/TASK-{NNN}-*.md` — all walkthrough files that exist
 
-**Create or overwrite both files** in `.github/plans/{feature-slug}/`:
+**Create or overwrite both files** in `.claude/plans/{feature-slug}/`:
 
 #### `zusammenfassung.md` (German)
 Fachliche Beschreibung der tatsächlich umgesetzten Änderungen des **gesamten Plans**.

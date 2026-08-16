@@ -40,12 +40,12 @@ Keep the skills current with `agents-cli update`; re-install them for this works
 
 ## Plan & Task Conventions
 
-Plans and tasks for features are persisted at `.github/plans/`.
+Plans and tasks for features are persisted at `.claude/plans/`.
 
 ### Folder structure
 
 ```
-.github/plans/
+.claude/plans/
   {feature-slug}/
     plan.md                          # Architecture plan (architect)
     status.md                        # Progress tracker (architect creates, developer updates)

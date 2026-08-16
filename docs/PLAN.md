@@ -1,3 +1,21 @@
+> ⚠️ **HINWEIS: Dieses Dokument ist der urspruengliche Entwurf und wird nicht mehr gepflegt.**
+>
+> Die maßgebliche, ueberarbeitete und gepflegte Version liegt unter:
+> **`.claude/plans/mk34-book-writing-system/`**
+>
+> - `plan.md` — Architektur, Komponenten, Sequenzfluss, Konfiguration, Tooling, Evaluation Plan, offene Fragen
+> - `status.md` — Fortschritt aller Tasks
+> - `tasks/TASK-NNN-*.md` — die einzelnen Arbeitspakete
+>
+> Wesentliche Korrekturen gegenueber dem Text unten: Projektstruktur kommt aus
+> `agents-cli scaffold` (nicht handgebautes `src/`), der Pfad `src/setup/basics.md`
+> existiert nicht (real: `books/life_link/idea/basics.md`), das lokale Modell ist
+> llama.cpp/`supergemma4-26b-abliterated` laut `docs/LOCAL_MODEL_VM_SETUP.md`
+> (nicht Ollama/Mistral), und die Claude-Modell-IDs wurden aktualisiert.
+> Die Phasenlogik und die Model-Routing-Grundidee bleiben unveraendert.
+
+---
+
 # MK34 - AI Book Writing System
 
 ## Vision
