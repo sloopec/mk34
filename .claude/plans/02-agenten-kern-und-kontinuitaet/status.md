@@ -3,7 +3,7 @@ Aktualisiert: 2026-08-17T00:00:00Z
 
 | Task-ID  | Titel                                                  | Status         | Gestartet | Abgeschlossen |
 |----------|--------------------------------------------------------|----------------|-----------|---------------|
-| TASK-001 | Manuskript-Tools (read/write/list/stats)               | ⏳ ausstehend   | —         | —             |
+| TASK-001 | Manuskript-Tools (read/write/list/stats)               | ✅ erledigt     | 2026-08-19T00:00:00Z | 2026-08-19T01:00:00Z |
 | TASK-002 | Kontext-Loader-Tools                                   | ⏳ ausstehend   | —         | —             |
 | TASK-003 | Eval-Grundgerüst und Judge-Bibliothek                  | ⏳ ausstehend   | —         | —             |
 | TASK-004 | Plot Agent                                             | ⏳ ausstehend   | —         | —             |
