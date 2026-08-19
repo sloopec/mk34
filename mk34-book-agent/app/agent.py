@@ -21,8 +21,12 @@ from google.adk.apps import App
 from google.adk.models import Gemini
 from google.genai import types
 
+from app.models.router import model_for
 
-MODEL = "gemini-3.6-flash"
+# mk34 (Entscheidung E6, plan.md): Modell kommt aus dem zentralen Router statt
+# hartcodiert zu sein. Bewusst beauftragte Modelländerung (Code-Preservation-
+# Ausnahme) -- siehe .claude/plans/01-fundament-und-kontext/tasks/TASK-002-model-router.md.
+MODEL = model_for("orchestrator")
 
 
 def get_weather(query: str) -> str:
@@ -58,11 +62,17 @@ def get_current_time(query: str) -> str:
     return f"The current time for query {query} is {now.strftime('%Y-%m-%d %H:%M:%S %Z%z')}"
 
 
+# `model_for` returns a bare Gemini model-ID string today (Gemini-first,
+# Entscheidung E6); wrap it the same way the scaffold default was wrapped
+# (retry_options preserved). A future `.env` switch to `anthropic/*` would
+# make `model_for` return a `LiteLlm` instance instead, which ADK's `Agent`
+# accepts directly -- so only the string case needs the `Gemini(...)` wrapper.
 root_agent = Agent(
     name="root_agent",
-    model=Gemini(
-        model=MODEL,
-        retry_options=types.HttpRetryOptions(attempts=3),
+    model=(
+        Gemini(model=MODEL, retry_options=types.HttpRetryOptions(attempts=3))
+        if isinstance(MODEL, str)
+        else MODEL
     ),
     instruction="You are a helpful AI assistant designed to provide accurate and useful information.",
     tools=[get_weather, get_current_time],

@@ -1,5 +1,5 @@
 # TASK-002: Model-Router (Gemini-first, provider-agnostisch)
-Status: ⏳ ausstehend
+Status: ✅ erledigt
 Abhängig von: [TASK-001]
 Parallel: ja
 
@@ -34,14 +34,17 @@ Zusätzlich:
 - Der lokale-LLM-Anteil des früheren Router-Tasks (Health-Check, `MK34_LOCAL_*`, Fallback-Logik) ist **herausgetrennt**: → `03-szenen-und-lokales-llm/TASK-001`.
 
 ## Akzeptanzkriterien
-- [ ] `model_for(role)` liefert für alle neun Rollen den korrekten Wert; Gemini-Rollen liefern einen nackten String, kein Wrapper-Objekt
-- [ ] Provider-Erkennung: `anthropic/*` liefert eine `LiteLlm`-Instanz (Testfall mit umgestellter Settings-Variable, ohne echten API-Call); `local` wirft `NotImplementedError` mit Verweis auf Plan 3
-- [ ] Alle Modell-IDs kommen aus Settings; `grep -r "gemini-" app/` trifft nur Router/Settings-Defaults
-- [ ] pytest deckt Rollen-Mapping, Tier-Auflösung und Provider-Erkennung ab (Code-Korrektheit, kein LLM-Output)
-- [ ] **Nachgeholter Live-Smoke-Test aus TASK-001, jetzt mit Gemini** (siehe `walkthroughs/TASK-001-scaffold-projekt.md`, Abschnitt *Verifikation*):
+- [x] `model_for(role)` liefert für alle neun Rollen den korrekten Wert; Gemini-Rollen liefern einen nackten String, kein Wrapper-Objekt
+- [x] Provider-Erkennung: `anthropic/*` liefert eine `LiteLlm`-Instanz (Testfall mit umgestellter Settings-Variable, ohne echten API-Call); `local` wirft `NotImplementedError` mit Verweis auf Plan 3
+- [x] Alle Modell-IDs kommen aus Settings; `grep -r "gemini-" app/` trifft nur Router/Settings-Defaults
+- [x] pytest deckt Rollen-Mapping, Tier-Auflösung und Provider-Erkennung ab (Code-Korrektheit, kein LLM-Output)
+- [x] **Nachgeholter Live-Smoke-Test aus TASK-001, jetzt mit Gemini** (siehe `walkthroughs/TASK-001-scaffold-projekt.md`, Abschnitt *Verifikation*):
   - `agents-cli playground` startet und der Agent antwortet über Gemini
   - Session-Persistenz über einen Prozess-Neustart via zwei getrennten `agents-cli run --session-id <id>`-Aufrufen nachgewiesen (End-to-End-Ergänzung zur bereits erfolgten Python-Verifikation von `DatabaseSessionService`)
-- [ ] `.env.example` dokumentiert das `MK34_MODEL_*`-Schema inkl. der Später-Werte (Claude/`local`) als Kommentar
+- [x] `.env.example` dokumentiert das `MK34_MODEL_*`-Schema inkl. der Später-Werte (Claude/`local`) als Kommentar
+
+Details, Abweichungen (u. a. notwendiger Fix in `app/fast_api_app.py` fuer den GCP-freien
+Lokalbetrieb) und Verifikationsschritte: `walkthroughs/TASK-002-model-router.md`.
 
 ## Betroffene Dateien
 - `app/models/__init__.py`

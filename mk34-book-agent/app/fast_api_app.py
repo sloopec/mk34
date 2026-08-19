@@ -13,25 +13,58 @@
 # limitations under the License.
 
 import contextlib
+import logging
 import os
 from collections.abc import AsyncIterator
 
-import google.auth
 from a2a.server.tasks import InMemoryTaskStore
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from google.adk.cli.fast_api import get_fast_api_app
 from google.adk.runners import Runner
-from google.cloud import logging as google_cloud_logging
 
 from app.app_utils import services
 from app.app_utils.a2a import attach_a2a_routes
 from app.app_utils.typing import Feedback
 
+
+class _LocalLogger:
+    """`log_struct`-compatible fallback used without a GCP project (E1).
+
+    mk34 (Entscheidung E1, plan.md): kein GCP-Projekt in diesem Setup -- der
+    Scaffold-Default rief hier bedingungslos `google.auth.default()` und
+    `google.cloud.logging.Client()` auf, die beide Application Default
+    Credentials voraussetzen und ohne GCP-Projekt hart fehlschlagen (auch im
+    reinen Gemini-AI-Studio-Pfad mit `GEMINI_API_KEY`). Dieser Fallback
+    haelt die `/feedback`-Route funktionsfaehig, ohne GCP vorauszusetzen.
+    """
+
+    def __init__(self, name: str) -> None:
+        self._logger = logging.getLogger(name)
+
+    def log_struct(self, info: dict, severity: str = "INFO") -> None:
+        level = logging.getLevelName(severity if isinstance(severity, str) else "INFO")
+        self._logger.log(level if isinstance(level, int) else logging.INFO, "%s", info)
+
+
 load_dotenv()
-_, project_id = google.auth.default()
-logging_client = google_cloud_logging.Client()
-logger = logging_client.logger(__name__)
+
+# Gate strictly on GOOGLE_GENAI_USE_VERTEXAI (the flag ADK's own Gemini
+# client uses to pick Vertex vs. AI Studio) -- not on GOOGLE_CLOUD_PROJECT
+# merely being present, since a leftover/unrelated project value there must
+# not force an ADC lookup in the Gemini-AI-Studio setup (E1).
+_use_vertex = os.getenv("GOOGLE_GENAI_USE_VERTEXAI", "").lower() in ("1", "true", "yes")
+
+if _use_vertex:
+    import google.auth
+    from google.cloud import logging as google_cloud_logging
+
+    _, project_id = google.auth.default()
+    logging_client = google_cloud_logging.Client()
+    logger = logging_client.logger(__name__)
+else:
+    project_id = None
+    logger = _LocalLogger(__name__)
 allow_origins = (
     os.getenv("ALLOW_ORIGINS", "").split(",") if os.getenv("ALLOW_ORIGINS") else None
 )
@@ -68,7 +101,10 @@ app: FastAPI = get_fast_api_app(
     artifact_service_uri=services.ARTIFACT_SERVICE_URI,
     allow_origins=allow_origins,
     session_service_uri=services.SESSION_SERVICE_URI,
-    otel_to_cloud=True,
+    # mk34 (Entscheidung E1): GCP-Cloud-Telemetry setzt ebenfalls ADC voraus
+    # und wuerde ohne GCP-Projekt hart fehlschlagen -- an dieselbe Bedingung
+    # gekoppelt wie der Logger oben.
+    otel_to_cloud=_use_vertex,
     lifespan=lifespan,
 )
 app.title = "mk34-book-agent"

@@ -7,13 +7,14 @@ authors = [
 ]
 
 dependencies = [
-    "google-adk[gcp,otel-gcp,db]>=2.5.0,<3.0.0",
+    "google-adk[gcp,otel-gcp,db,extensions]>=2.5.0,<3.0.0",
     "greenlet>=3.0.0",
     "opentelemetry-resourcedetector-gcp<=1.12.0a0",
     "gcsfs>=2024.11.0",
     "a2a-sdk[http-server]>=1.0,<2",
     "aiohttp>=3.13.4",
     "google-cloud-logging>=3.12.0,<4.0.0",
+    "pydantic-settings>=2.6.0,<3.0.0",
 ]
 requires-python = ">=3.11,<3.14"
 
@@ -78,7 +79,12 @@ not-subscriptable = "ignore"
 deprecated = "ignore"
 
 [tool.codespell]
-ignore-words-list = "rouge"
+# "rouge" and the German words below are codespell false positives: common
+# German words (used in German-language code comments throughout this
+# project, per team convention) that happen to match codespell's English
+# misspelling dictionary (ist->is, als->also, oder->order, modell->model,
+# lokale/lokales->locale/locales, explizit->explicit).
+ignore-words-list = "rouge,ist,als,oder,modell,lokale,lokales,explizit,hart"
 skip = "./locust_env/*,uv.lock,.venv,./frontend,**/package-lock.json"
 
 
