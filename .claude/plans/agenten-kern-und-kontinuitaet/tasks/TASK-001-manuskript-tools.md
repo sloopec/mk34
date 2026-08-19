@@ -1,7 +1,8 @@
-# TASK-004: Manuskript-Tools (read/write/list/stats)
+# TASK-001: Manuskript-Tools (read/write/list/stats)
 Status: ⏳ ausstehend
-Abhängig von: [TASK-003]
+Abhängig von (plan-übergreifend): fundament-und-kontext/TASK-003
 Parallel: ja
+*(vormals TASK-004 im Gesamtplan)*
 
 ## Beschreibung
 FunctionTools fuer den Manuskript-Zugriff in `app/tools/manuscript.py`.
@@ -15,7 +16,9 @@ ADK-Toolregeln: Typannotationen **ohne** Defaults, JSON-serialisierbarer dict-Re
 
 Szenengrenzen werden ueber Markdown-Marker realisiert (z. B. `<!-- scene:2 -->`), damit `write_scene` idempotent einzelne Szenen ersetzen kann.
 
-Sicherheit: alle Pfade gegen `MK34_BOOK_ROOT` kanonisieren und Traversal (`..`, absolute Pfade) ablehnen — Kapitel-/Szenennummern kommen aus Modell-Output.
+Sicherheit: alle Pfade gegen `MK34_BOOK_ROOT` kanonisieren und Traversal (`..`, absolute Pfade) ablehnen — Kapitel-/Szenennummern kommen aus Modell-Output. `MK34_BOOK_ROOT` zeigt gemaess E5 auf `books/life_link/` im Repo-Root, ausserhalb von `mk34-book-agent/`.
+
+Hinweis zur Planaufteilung: die Tools sind szenen-agnostisch (Dateizugriff) und gehoeren deshalb hierher; der Agent, der `write_scene` kreativ befuellt, kommt erst in `szenen-und-lokales-llm/TASK-002`.
 
 ## Akzeptanzkriterien
 - [ ] Alle vier Tools implementiert, mit Docstrings, dict-Return, `{"status": ...}`-Konvention

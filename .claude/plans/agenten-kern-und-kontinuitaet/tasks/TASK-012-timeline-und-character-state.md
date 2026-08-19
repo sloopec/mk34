@@ -1,7 +1,8 @@
-# TASK-016: Timeline- und Character-State-Tracking
+# TASK-012: Timeline- und Character-State-Tracking
 Status: ⏳ ausstehend
-Abhängig von: [TASK-015]
+Abhängig von: [TASK-011]
 Parallel: ja
+*(vormals TASK-016 im Gesamtplan)*
 
 ## Beschreibung
 Automatische Pflege von Chronologie und Figurenzustand nach jeder geschriebenen Szene.
@@ -17,7 +18,7 @@ Pro Kapitel je Figur: Ort, Wissensstand, emotionaler Zustand, Infektionsstatus (
 - Automatisches Update nach jeder geschriebenen Szene
 - Warnung, wenn eine Szene Wissen voraussetzt, das die Figur zu diesem Zeitpunkt nicht haben kann
 
-Beide Updates laufen als Post-Write-Schritt der Pipeline, nicht als freie LLM-Entscheidung — die Extraktion ist LLM-gestuetzt, das Schreiben deterministisch ueber Tools.
+Beide Updates laufen als Post-Write-Schritt der Pipeline, nicht als freie LLM-Entscheidung — die Extraktion ist LLM-gestuetzt, das Schreiben deterministisch ueber Tools. Der Post-Write-Hook wird hier am Pipeline-Geruest (TASK-008) implementiert und mit Fixture-Szenen getestet; scharf geschaltet wird er mit dem Szenen-Schritt in Plan 3.
 
 ## Akzeptanzkriterien
 - [ ] `timeline.json` wird nach jedem `write_scene` automatisch fortgeschrieben

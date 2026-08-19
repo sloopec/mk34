@@ -1,7 +1,8 @@
-# TASK-005: Kontext-Loader-Tools
+# TASK-002: Kontext-Loader-Tools
 Status: ⏳ ausstehend
-Abhängig von: [TASK-003]
+Abhängig von (plan-übergreifend): fundament-und-kontext/TASK-003
 Parallel: ja
+*(vormals TASK-005 im Gesamtplan)*
 
 ## Beschreibung
 FunctionTools, die den Story-Kanon in den Agenten-Kontext holen — `app/tools/context_loader.py`.
@@ -11,7 +12,7 @@ FunctionTools, die den Story-Kanon in den Agenten-Kontext holen — `app/tools/c
 - `load_plot_outline(act: int) -> dict` — Beats fuer einen Akt/eine Phase
 - `load_scene_context(chapter: int, scene: int) -> dict` — kombinierter Kontext: Beat + beteiligte Figuren + relevante Weltregeln + Stilprofil
 
-`load_scene_context` ist die Hauptschnittstelle fuer die Pipeline und schreibt sein Ergebnis via `output_key="scene_context"` in den State, damit nachgelagerte Agenten es per `{scene_context}` in der Instruction injizieren koennen.
+`load_scene_context` ist die Hauptschnittstelle fuer die Pipeline und schreibt sein Ergebnis via `output_key="scene_context"` in den State, damit nachgelagerte Agenten es per `{scene_context}` in der Instruction injizieren koennen. (Konsument in diesem Plan: Editor-Loop im Pipeline-Geruest; ab Plan 3 zusaetzlich der Scene Agent.)
 
 Wichtig: der State wird ueber ein `before_agent_callback` vorinitialisiert, damit `{scene_context}` beim ersten Turn nicht mit `KeyError` bricht.
 

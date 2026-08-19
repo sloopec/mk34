@@ -1,18 +1,24 @@
 > ⚠️ **HINWEIS: Dieses Dokument ist der urspruengliche Entwurf und wird nicht mehr gepflegt.**
 >
-> Die maßgebliche, ueberarbeitete und gepflegte Version liegt unter:
-> **`.claude/plans/mk34-book-writing-system/`**
+> Die maßgebliche, gepflegte Planung liegt seit 2026-08-17 in **vier Plaenen** unter `.claude/plans/`
+> (Einstieg und Gesamtuebersicht: **`.claude/plans/README.md`**):
 >
-> - `plan.md` — Architektur, Komponenten, Sequenzfluss, Konfiguration, Tooling, Evaluation Plan, offene Fragen
-> - `status.md` — Fortschritt aller Tasks
-> - `tasks/TASK-NNN-*.md` — die einzelnen Arbeitspakete
+> 1. `fundament-und-kontext/` — Scaffold (erledigt), Model-Router, Kontext-Store
+> 2. `agenten-kern-und-kontinuitaet/` — Tools, Eval-Grundgeruest, Plot/Character/Editor, Orchestrator, Pipeline, Continuity
+> 3. `szenen-und-lokales-llm/` — Scene Agent, lokales LLM, Content-Routing, Szenen-Evals
+> 4. `qualitaet-workflow-und-export/` — QS lokaler Outputs, Autoren-Workflow/CLI, Export, Observability
+>
+> Jeder Plan enthaelt `plan.md`, `status.md` und `tasks/TASK-NNN-*.md`, inklusive Mapping auf die
+> alte Task-Nummerierung des aufgeloesten Gesamtplans.
 >
 > Wesentliche Korrekturen gegenueber dem Text unten: Projektstruktur kommt aus
 > `agents-cli scaffold` (nicht handgebautes `src/`), der Pfad `src/setup/basics.md`
 > existiert nicht (real: `books/life_link/idea/basics.md`), das lokale Modell ist
 > llama.cpp/`supergemma4-26b-abliterated` laut `docs/LOCAL_MODEL_VM_SETUP.md`
-> (nicht Ollama/Mistral), und die Claude-Modell-IDs wurden aktualisiert.
-> Die Phasenlogik und die Model-Routing-Grundidee bleiben unveraendert.
+> (nicht Ollama/Mistral) — und die Modellstrategie ist inzwischen **Gemini-first**:
+> gestartet wird mit Gemini-Modellen (ADK-nativ), Claude via LiteLLM und das lokale
+> Modell (nur Scene Agent) sind konfigurierbare Alternativen.
+> Die Phasenlogik und die Routing-Grundidee bleiben unveraendert.
 
 ---
 

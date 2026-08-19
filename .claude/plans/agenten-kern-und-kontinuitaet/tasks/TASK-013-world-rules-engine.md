@@ -1,7 +1,8 @@
-# TASK-017: World-Rules-Engine
+# TASK-013: World-Rules-Engine
 Status: ⏳ ausstehend
-Abhängig von: [TASK-015]
+Abhängig von: [TASK-011]
 Parallel: ja
+*(vormals TASK-017 im Gesamtplan)*
 
 ## Beschreibung
 Die Naniten-Regeln aus `world_bible.md` werden zu harten, pruefbaren Constraints — nicht nur zu Prompt-Prosa.
@@ -17,7 +18,7 @@ Regelbasis aus `basics.md`:
 
 Tool `validate_world_rules(text: str) -> dict` prueft einen Szenentext gegen diese Liste und liefert `{"violations": [{"rule_id", "evidence", "explanation"}]}`.
 
-Zweistufig: deterministische Checks (Terminologie, verbotene Begriffe) in Python; semantische Checks (verhaelt sich die Technologie logisch konsistent?) per LLM-Judge auf `claude-sonnet-5`.
+Zweistufig: deterministische Checks (Terminologie, verbotene Begriffe) in Python; semantische Checks (verhaelt sich die Technologie logisch konsistent?) per LLM-Judge — Start `gemini-3.7-flash` (E6), spaeter `claude-sonnet-5`.
 
 Ergebnis fliesst in `check_consistency` und in die Eval-Metrik `world_rule_compliance`.
 
@@ -26,10 +27,10 @@ Ergebnis fliesst in `check_consistency` und in die Eval-Metrik `world_rule_compl
 - [ ] `validate_world_rules` erkennt Testverletzungen (z. B. „die Naniten meldeten sich beim Server", „winzige Metallmaennchen")
 - [ ] Terminologie-Check ist deterministisch und figurenbezogen
 - [ ] Verletzungen blockieren das Schreiben genauso wie Continuity-Konflikte
-- [ ] Eval-Metrik `world_rule_compliance` ist in `eval_config.yaml` aktiv
+- [ ] Eval-Metrik `world_rule_compliance` ist in `eval_config.yaml` aktiv (Stufe `fast`)
 
 ## Betroffene Dateien
 - `books/life_link/store/world_bible.md`
 - `app/tools/consistency.py`
-- `tests/eval/metrics/world_rule_compliance.py`
+- `tests/eval/mk34_eval/rubrics/world_rule_compliance.md`
 - `tests/unit/test_world_rules.py`
