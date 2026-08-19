@@ -6,7 +6,7 @@ Das Projekt „AI Book Writing System" (Google ADK, Buchprojekt *Life Link*) ist
 
 | # | Plan | Inhalt | Status |
 |---|---|---|---|
-| 1 | [`01-fundament-und-kontext/`](01-fundament-und-kontext/plan.md) | Scaffold (✅), Model-Router (Gemini-first), Kontext-Store aus `basics.md` | in Arbeit (1/3 erledigt) |
+| 1 | [`01-fundament-und-kontext/`](01-fundament-und-kontext/plan.md) | Scaffold (✅), Model-Router (Gemini-first), Kontext-Store aus `basics.md` | ✅ erledigt |
 | 2 | [`02-agenten-kern-und-kontinuitaet/`](02-agenten-kern-und-kontinuitaet/plan.md) | Tools, Eval-Grundgerüst, Plot-/Character-/Editor-Agent, Orchestrator, Pipeline-Gerüst, Continuity/Timeline/World-Rules — **ohne Szenen-Anteile** | ausstehend |
 | 3 | [`03-szenen-und-lokales-llm/`](03-szenen-und-lokales-llm/plan.md) | Alles rund um das Szenenschreiben: Scene Agent, lokales LLM im Router, Szenen-Schritt der Pipeline, Content-Klassifikation/Routing, Szenen-Evals | ausstehend |
 | 4 | [`04-qualitaet-workflow-und-export/`](04-qualitaet-workflow-und-export/plan.md) | Qualitätssicherung lokaler Outputs, Autoren-Workflow/CLI, Export/Polish, Observability | ausstehend |

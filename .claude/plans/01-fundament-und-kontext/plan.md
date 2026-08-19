@@ -8,8 +8,8 @@
 | Alt (Gesamtplan) | Neu | Status |
 |---|---|---|
 | TASK-001 Projekt scaffolden | TASK-001 (unverändert, inkl. `walkthroughs/` und `feature_summary/`) | ✅ erledigt |
-| TASK-002 Model-Router (Claude via LiteLLM + lokales Modell) | TASK-002 — **umgebaut auf Gemini-first (E6)**; der lokale-LLM-Anteil ist herausgetrennt nach `03-szenen-und-lokales-llm/TASK-001` | ⏳ ausstehend |
-| TASK-003 Kontext-Store | TASK-003 (unverändert) | ⏳ ausstehend |
+| TASK-002 Model-Router (Claude via LiteLLM + lokales Modell) | TASK-002 — **umgebaut auf Gemini-first (E6)**; der lokale-LLM-Anteil ist herausgetrennt nach `03-szenen-und-lokales-llm/TASK-001` | ✅ erledigt |
+| TASK-003 Kontext-Store | TASK-003 (unverändert) | ✅ erledigt |
 
 ---
 
