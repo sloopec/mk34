@@ -1,0 +1,84 @@
+{
+  "book_slug": "life_link",
+  "source": "books/life_link/idea/basics.md",
+  "logline": "Ein Marketing-Experiment zur Steigerung der Kauflust gerät außer Kontrolle, als die eingesetzten Naniten eine Schwarmintelligenz entwickeln und beginnen, sich wie ein Virus durch Geschlechtsverkehr zu verbreiten. David, dessen Frau dem Wahn bereits verfallen ist, sucht Hilfe bei seiner Jugendliebe Sarah in einer isolierten Kommune. Doch sie kämpfen nicht gegen einen Konzern, sondern gegen eine neue Stufe der Evolution, die beginnt, die menschliche DNA selbst umzuschreiben.",
+  "phases": [
+    {
+      "id": 0,
+      "title": "Der Pitch (Voss & Marketing)",
+      "focus_characters": ["Dr. Elias Voss", "Ronan"],
+      "summary": "Voss präsentiert dem skeptischen Marketing-Chef Ronan das LifeLink-Konzept.",
+      "beats": [
+        "Voss stellt LifeLink als Produkt zur 'neuro-biologischen Entscheidungsassistenz' vor.",
+        "ELI5-Moment: Voss erklärt, wie man Kaufentscheidungen beeinflusst, ohne dass der Kunde es merkt ('Der Spam-Filter im Gehirn')."
+      ],
+      "example_scenes": ["A"]
+    },
+    {
+      "id": 1,
+      "title": "Der Ausbruch (Symptome)",
+      "focus_characters": ["David", "Elena", "Dr. Elias Voss", "Vorstand"],
+      "summary": "David bemerkt physische und psychische Veränderungen an seiner Frau Elena. Parallel dazu beginnt bei OmniCorp die erste Krisensitzung.",
+      "beats": [
+        "David bemerkt Veränderungen an Elena (kalte Präzision, fehlende Reaktion, 'Energiesparmodus').",
+        "Parallel: erste Krisensitzung bei OmniCorp – Berichte über 'unangemessenes Verhalten' der Testgruppe.",
+        "Der Vorstand will das Projekt leise beerdigen, aber Voss besteht darauf, dass es nur eine Kalibrierungssache ist."
+      ],
+      "example_scenes": ["B"]
+    },
+    {
+      "id": 2,
+      "title": "Die Recherche (Das Verständnis)",
+      "focus_characters": ["David", "Dr. Aris", "Dr. Elias Voss", "Vorstand"],
+      "summary": "David trifft Dr. Aris und erhält die Diagnose 'Renovierung statt Krankheit'. Parallel eskaliert die Lage im Boardroom von OmniCorp.",
+      "beats": [
+        "Dr. Aris zeigt David das Blutbild seiner Frau und erklärt die Naniten als 'Architektur, nicht Wildwuchs'.",
+        "Eskalation im Boardroom: Voss wird vor den Vorstand zitiert, die Situation gilt als außer Kontrolle.",
+        "Der Vorstand beschließt, alles abzustreiten und Beweise zu vernichten (und Voss zum Sündenbock zu machen), statt die Gesundheitsbehörden zu warnen."
+      ],
+      "example_scenes": ["C"]
+    },
+    {
+      "id": 3,
+      "title": "Die Flucht (Eskalation)",
+      "focus_characters": ["David"],
+      "summary": "Infizierte beginnen, aktiv nach 'Nicht-Optimierten' zu suchen. David flieht zur 'Toten Zone', Sarahs Kommune.",
+      "beats": [
+        "Infizierte beginnen, 'Nicht-Optimierte' aktiv zu suchen (Bedrohung eskaliert von passiv zu aktiv).",
+        "David flieht zur 'Toten Zone' (Sarahs isolierter Kommune)."
+      ],
+      "example_scenes": []
+    },
+    {
+      "id": 4,
+      "title": "Die Analyse (Kein Zurück)",
+      "focus_characters": ["David", "Dr. Sarah Lin"],
+      "summary": "In der Kommune untersucht Sarah Blutproben und entdeckt, dass die Naniten die DNA der Keimbahn verändern – ein Punkt ohne Umkehr.",
+      "beats": [
+        "Sarah untersucht Blutproben in der Kommune.",
+        "Der Schock: Die Naniten verändern die DNA der Keimbahn, nicht nur somatische Zellen – die Veränderung ist vererbbar."
+      ],
+      "example_scenes": ["D"]
+    },
+    {
+      "id": 5,
+      "title": "Die Lösung? (Kein einfacher Sieg)",
+      "focus_characters": ["David", "Dr. Sarah Lin", "Vorstand"],
+      "summary": "OmniCorp versucht, das betroffene Gebiet 'zu reinigen' (Vertuschung mit militärischen Mitteln bzw. privaten Sicherheitsdiensten), während David und Sarah versuchen, die Menschheit zu retten.",
+      "beats": [
+        "OmniCorp setzt militärische bzw. private Sicherheitsdienste ein, um das Gebiet 'zu reinigen' (Fortsetzung der Vertuschung statt Lösung).",
+        "David und Sarah versuchen, einen echten Ausweg zu finden – kein einfacher Sieg."
+      ],
+      "example_scenes": []
+    }
+  ],
+  "standalone_example_scenes": [
+    {
+      "id": "E",
+      "title": "Das Protokoll der Sehnsucht (ausformuliertes Beispiel)",
+      "characters": ["Markus", "Sophie"],
+      "phase": null,
+      "note": "Nicht explizit einer Phase zugeordnet in basics.md; thematisch nah an Phase 1 (individuelle Auswirkung von LifeLink auf einen frühen Nutzer, parallel zum Ausbruch bei David/Elena). Stil-Fixture: 'Klinische Distanz trifft poetische Verzweiflung' (Entscheidung E8, siehe .claude/plans/README.md) -- dient als Editor-Loop-Fixture in Plan 2/TASK-008."
+    }
+  ]
+}
