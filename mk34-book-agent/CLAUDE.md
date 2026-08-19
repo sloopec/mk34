@@ -50,6 +50,14 @@ Ask the user: Option A (simple single-project) or Option B (full CI/CD pipeline 
 
 ---
 
+## .env Handling (STRICT)
+
+- **Never open or read `.env` on your own initiative.** Do not `cat`, `Read`, `grep`, or otherwise inspect its contents — not to "check a value", not to debug, not for any reason — unless the user explicitly pastes the content or explicitly instructs you to read that specific file in that specific moment.
+- **Under no circumstances send `.env` contents to an LLM** — not as tool output, not summarized, not partially, not to yourself as a subagent. Secrets in `.env` (API keys, credentials) must never enter any model context.
+- **If a task needs the variables from `.env`, run code that loads them into the environment instead of reading the file:** e.g. `uv run --env-file .env <cmd>`, `set -a && source .env && set +a && <cmd>`, or let `agents-cli`/the app's own dotenv loading (`python-dotenv` in `app/`) pick it up at runtime. The variables end up in the process environment; their values never pass through your context window.
+- If you must confirm a variable is *set* (not its value), use something like `[ -n "$ANTHROPIC_API_KEY" ] && echo set || echo missing` — this reveals presence, never the secret itself.
+- By default, the local dev setup should have the VS Code integrated terminal configured to pick up `.env` automatically (so `$ANTHROPIC_API_KEY` etc. are already in scope in any shell you launch there) — treat variables as ambient environment, not as file content to inspect.
+
 ## Operational Guidelines for Coding Agents
 
 - **Code preservation**: Only modify code directly targeted by the user's request. Preserve all surrounding code, config values (e.g., `model`), comments, and formatting.
