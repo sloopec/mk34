@@ -2,7 +2,7 @@
 Status: ⏳ ausstehend
 Abhängig von: [TASK-007]
 Parallel: nein
-*(vormals TASK-013 im Gesamtplan — hier nur das Geruest; der Szenen-Schritt liegt in `szenen-und-lokales-llm/TASK-003`)*
+*(vormals TASK-013 im Gesamtplan — hier nur das Geruest; der Szenen-Schritt liegt in `03-szenen-und-lokales-llm/TASK-003`)*
 
 ## Beschreibung
 Die deterministische Kette „Szene schreiben" als Workflow-Agent — nicht als LLM-Delegation, weil die Reihenfolge fest ist und nicht vom Modell entschieden werden soll.

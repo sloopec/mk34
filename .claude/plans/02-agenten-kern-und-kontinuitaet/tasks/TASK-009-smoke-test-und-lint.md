@@ -19,7 +19,7 @@ agents-cli playground        # interaktive Durchsicht der Delegation
 
 Dies ist ein Smoke-Test, **kein** Verhaltenstest. Keine pytest-Assertions auf LLM-Textinhalte.
 
-Der Check „lokale VM nicht erreichbar → klare Fehlermeldung" entfaellt hier — das lokale LLM wird erst in `szenen-und-lokales-llm/TASK-001` angebunden und dort geprueft.
+Der Check „lokale VM nicht erreichbar → klare Fehlermeldung" entfaellt hier — das lokale LLM wird erst in `03-szenen-und-lokales-llm/TASK-001` angebunden und dort geprueft.
 
 ## Akzeptanzkriterien
 - [ ] `agents-cli lint` ist gruen

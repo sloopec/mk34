@@ -1,6 +1,6 @@
 # TASK-001: Qualitätssicherung für lokale Outputs
 Status: ⏳ ausstehend
-Abhängig von (plan-übergreifend): szenen-und-lokales-llm/TASK-004
+Abhängig von (plan-übergreifend): 03-szenen-und-lokales-llm/TASK-004
 Parallel: nein
 *(vormals TASK-019 im Gesamtplan)*
 

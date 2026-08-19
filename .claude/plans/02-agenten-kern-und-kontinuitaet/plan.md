@@ -3,7 +3,7 @@
 > Teil 2 von 4 des mk34-Book-Writing-Systems. Gesamtübersicht, Entscheidungen E1–E6 und Model-Routing-Matrix: [`../README.md`](../README.md).
 > Stand: 2026-08-17 · hervorgegangen aus `mk34-book-writing-system/` (aufgelöst)
 
-Dieser Plan baut das Multi-Agenten-System **ohne die Szenen-Anteile**: Tools, Eval-Grundgerüst, die Autoren-Agenten (Plot, Character, Editor), den Orchestrator, das Pipeline-Gerüst sowie Continuity/Timeline/World-Rules. Alles, was Szenentext erzeugt oder das lokale LLM berührt, liegt in Plan 3 (`szenen-und-lokales-llm/`).
+Dieser Plan baut das Multi-Agenten-System **ohne die Szenen-Anteile**: Tools, Eval-Grundgerüst, die Autoren-Agenten (Plot, Character, Editor), den Orchestrator, das Pipeline-Gerüst sowie Continuity/Timeline/World-Rules. Alles, was Szenentext erzeugt oder das lokale LLM berührt, liegt in Plan 3 (`03-szenen-und-lokales-llm/`).
 
 ## Task-Mapping (alt → neu)
 

@@ -1,6 +1,6 @@
 # TASK-002: Kontext-Loader-Tools
 Status: ⏳ ausstehend
-Abhängig von (plan-übergreifend): fundament-und-kontext/TASK-003
+Abhängig von (plan-übergreifend): 01-fundament-und-kontext/TASK-003
 Parallel: ja
 *(vormals TASK-005 im Gesamtplan)*
 

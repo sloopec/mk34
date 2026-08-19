@@ -30,7 +30,7 @@ Zustandsuebergaben laufen ueber `session.state` (`active_chapter`, `active_scene
 
 `App(name="app")` muss dem Agent-Verzeichnis entsprechen — sonst „Session not found" beim Eval.
 
-Hinweis zur Planaufteilung: die Registrierung des Scene Agent als Sub-Agent und das Routing „Schreibe 3.2 → Pipeline mit Szenen-Schritt" erfolgen in `szenen-und-lokales-llm/TASK-003`; die Instruction wird dort erweitert, nicht neu geschrieben.
+Hinweis zur Planaufteilung: die Registrierung des Scene Agent als Sub-Agent und das Routing „Schreibe 3.2 → Pipeline mit Szenen-Schritt" erfolgen in `03-szenen-und-lokales-llm/TASK-003`; die Instruction wird dort erweitert, nicht neu geschrieben.
 
 ## Akzeptanzkriterien
 - [ ] `root_agent` ist der Orchestrator; `agents-cli playground` zeigt Delegation an die richtigen Sub-Agents

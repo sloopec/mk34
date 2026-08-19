@@ -1,7 +1,7 @@
 # TASK-005: Szenen-Evals (Datasets und Metriken)
 Status: ⏳ ausstehend
 Abhängig von: [TASK-003]
-Abhängig von (plan-übergreifend): agenten-kern-und-kontinuitaet/TASK-003
+Abhängig von (plan-übergreifend): 02-agenten-kern-und-kontinuitaet/TASK-003
 Parallel: nein
 *(die Szenen-Anteile der frueheren TASK-008 und TASK-014 des Gesamtplans)*
 

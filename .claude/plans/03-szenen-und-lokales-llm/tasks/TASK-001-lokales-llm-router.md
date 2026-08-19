@@ -1,6 +1,6 @@
 # TASK-001: Lokales LLM im Model-Router
 Status: ⏳ ausstehend
-Abhängig von (plan-übergreifend): fundament-und-kontext/TASK-002
+Abhängig von (plan-übergreifend): 01-fundament-und-kontext/TASK-002
 Parallel: ja
 *(herausgetrennt aus dem frueheren TASK-002 des Gesamtplans — dort verblieb der Gemini-first-Router)*
 

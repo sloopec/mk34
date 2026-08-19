@@ -21,6 +21,6 @@ Statuswerte: `⏳ ausstehend` → `🔄 in Bearbeitung` → `✅ erledigt` oder 
 
 ## Plan-übergreifende Abhängigkeiten
 
-- Voraussetzung: `fundament-und-kontext/TASK-002` (Router) und `TASK-003` (Store).
-- Nachgelagert: `szenen-und-lokales-llm/` baut auf TASK-001/002 (Tools), TASK-003 (Eval-Gerüst), TASK-007/008 (Orchestrator/Pipeline) und TASK-012/013 auf.
-- `qualitaet-workflow-und-export/TASK-004` (Observability) kann ab TASK-008 parallel starten.
+- Voraussetzung: `01-fundament-und-kontext/TASK-002` (Router) und `TASK-003` (Store).
+- Nachgelagert: `03-szenen-und-lokales-llm/` baut auf TASK-001/002 (Tools), TASK-003 (Eval-Gerüst), TASK-007/008 (Orchestrator/Pipeline) und TASK-012/013 auf.
+- `04-qualitaet-workflow-und-export/TASK-004` (Observability) kann ab TASK-008 parallel starten.

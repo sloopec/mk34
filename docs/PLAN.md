@@ -3,10 +3,10 @@
 > Die maßgebliche, gepflegte Planung liegt seit 2026-08-17 in **vier Plaenen** unter `.claude/plans/`
 > (Einstieg und Gesamtuebersicht: **`.claude/plans/README.md`**):
 >
-> 1. `fundament-und-kontext/` — Scaffold (erledigt), Model-Router, Kontext-Store
-> 2. `agenten-kern-und-kontinuitaet/` — Tools, Eval-Grundgeruest, Plot/Character/Editor, Orchestrator, Pipeline, Continuity
-> 3. `szenen-und-lokales-llm/` — Scene Agent, lokales LLM, Content-Routing, Szenen-Evals
-> 4. `qualitaet-workflow-und-export/` — QS lokaler Outputs, Autoren-Workflow/CLI, Export, Observability
+> 1. `01-fundament-und-kontext/` — Scaffold (erledigt), Model-Router, Kontext-Store
+> 2. `02-agenten-kern-und-kontinuitaet/` — Tools, Eval-Grundgeruest, Plot/Character/Editor, Orchestrator, Pipeline, Continuity
+> 3. `03-szenen-und-lokales-llm/` — Scene Agent, lokales LLM, Content-Routing, Szenen-Evals
+> 4. `04-qualitaet-workflow-und-export/` — QS lokaler Outputs, Autoren-Workflow/CLI, Export, Observability
 >
 > Jeder Plan enthaelt `plan.md`, `status.md` und `tasks/TASK-NNN-*.md`, inklusive Mapping auf die
 > alte Task-Nummerierung des aufgeloesten Gesamtplans.

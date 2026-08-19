@@ -1,6 +1,6 @@
 # TASK-004: Observability und Logging
 Status: ⏳ ausstehend
-Abhängig von (plan-übergreifend): agenten-kern-und-kontinuitaet/TASK-008
+Abhängig von (plan-übergreifend): 02-agenten-kern-und-kontinuitaet/TASK-008
 Parallel: ja
 *(vormals TASK-022 im Gesamtplan — kann frueh parallel zu Plan 3 starten)*
 

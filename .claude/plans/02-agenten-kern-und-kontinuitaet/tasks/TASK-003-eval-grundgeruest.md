@@ -2,7 +2,7 @@
 Status: ⏳ ausstehend
 Abhängig von: [TASK-001, TASK-002]
 Parallel: nein
-*(vormals TASK-008 im Gesamtplan — hier ohne die Szenen-Anteile; die liegen in `szenen-und-lokales-llm/TASK-005`)*
+*(vormals TASK-008 im Gesamtplan — hier ohne die Szenen-Anteile; die liegen in `03-szenen-und-lokales-llm/TASK-005`)*
 
 ## Beschreibung
 Die lokale Eval-Infrastruktur, die alle vier Plaene nutzen. Klein anfangen: 1–2 Cases, iterieren, erst dann erweitern.

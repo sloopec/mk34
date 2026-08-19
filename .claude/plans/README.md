@@ -6,10 +6,10 @@ Das Projekt „AI Book Writing System" (Google ADK, Buchprojekt *Life Link*) ist
 
 | # | Plan | Inhalt | Status |
 |---|---|---|---|
-| 1 | [`fundament-und-kontext/`](fundament-und-kontext/plan.md) | Scaffold (✅), Model-Router (Gemini-first), Kontext-Store aus `basics.md` | in Arbeit (1/3 erledigt) |
-| 2 | [`agenten-kern-und-kontinuitaet/`](agenten-kern-und-kontinuitaet/plan.md) | Tools, Eval-Grundgerüst, Plot-/Character-/Editor-Agent, Orchestrator, Pipeline-Gerüst, Continuity/Timeline/World-Rules — **ohne Szenen-Anteile** | ausstehend |
-| 3 | [`szenen-und-lokales-llm/`](szenen-und-lokales-llm/plan.md) | Alles rund um das Szenenschreiben: Scene Agent, lokales LLM im Router, Szenen-Schritt der Pipeline, Content-Klassifikation/Routing, Szenen-Evals | ausstehend |
-| 4 | [`qualitaet-workflow-und-export/`](qualitaet-workflow-und-export/plan.md) | Qualitätssicherung lokaler Outputs, Autoren-Workflow/CLI, Export/Polish, Observability | ausstehend |
+| 1 | [`01-fundament-und-kontext/`](01-fundament-und-kontext/plan.md) | Scaffold (✅), Model-Router (Gemini-first), Kontext-Store aus `basics.md` | in Arbeit (1/3 erledigt) |
+| 2 | [`02-agenten-kern-und-kontinuitaet/`](02-agenten-kern-und-kontinuitaet/plan.md) | Tools, Eval-Grundgerüst, Plot-/Character-/Editor-Agent, Orchestrator, Pipeline-Gerüst, Continuity/Timeline/World-Rules — **ohne Szenen-Anteile** | ausstehend |
+| 3 | [`03-szenen-und-lokales-llm/`](03-szenen-und-lokales-llm/plan.md) | Alles rund um das Szenenschreiben: Scene Agent, lokales LLM im Router, Szenen-Schritt der Pipeline, Content-Klassifikation/Routing, Szenen-Evals | ausstehend |
+| 4 | [`04-qualitaet-workflow-und-export/`](04-qualitaet-workflow-und-export/plan.md) | Qualitätssicherung lokaler Outputs, Autoren-Workflow/CLI, Export/Polish, Observability | ausstehend |
 
 Empfohlene Reihenfolge: **1 → 2 → 3 → 4**. Plan 3 kann teilweise parallel zu den späten Plan-2-Tasks laufen (siehe Abhängigkeiten unten).
 
@@ -29,7 +29,7 @@ TASK-003 Kontext-Store ───▶ TASK-001/002 Tools ────────�
 ```
 \* Observability (Plan 4/TASK-004) braucht nur das Pipeline-Gerüst und kann früh parallel starten.
 
-In den Task-Dateien sind plan-übergreifende Abhängigkeiten explizit markiert, z. B. `Abhängig von (plan-übergreifend): fundament-und-kontext/TASK-002`.
+In den Task-Dateien sind plan-übergreifende Abhängigkeiten explizit markiert, z. B. `Abhängig von (plan-übergreifend): 01-fundament-und-kontext/TASK-002`.
 
 ## Verbindliche Entscheidungen (gelten über alle vier Pläne)
 

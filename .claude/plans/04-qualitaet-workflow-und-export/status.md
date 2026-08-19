@@ -12,6 +12,6 @@ Statuswerte: `⏳ ausstehend` → `🔄 in Bearbeitung` → `✅ erledigt` oder 
 
 ## Plan-übergreifende Abhängigkeiten
 
-- TASK-001 setzt `szenen-und-lokales-llm/TASK-004` voraus (es braucht lokal generierte Szenen).
-- TASK-004 setzt nur `agenten-kern-und-kontinuitaet/TASK-008` voraus und kann früh parallel starten.
+- TASK-001 setzt `03-szenen-und-lokales-llm/TASK-004` voraus (es braucht lokal generierte Szenen).
+- TASK-004 setzt nur `02-agenten-kern-und-kontinuitaet/TASK-008` voraus und kann früh parallel starten.
 - TASK-002/003 bauen aufeinander auf und schliessen das Projekt ab.

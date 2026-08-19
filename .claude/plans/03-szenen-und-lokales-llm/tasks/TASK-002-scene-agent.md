@@ -1,6 +1,6 @@
 # TASK-002: Scene Agent (Start Gemini, Ziel lokal)
 Status: ⏳ ausstehend
-Abhängig von (plan-übergreifend): fundament-und-kontext/TASK-002, agenten-kern-und-kontinuitaet/TASK-001, agenten-kern-und-kontinuitaet/TASK-002
+Abhängig von (plan-übergreifend): 01-fundament-und-kontext/TASK-002, 02-agenten-kern-und-kontinuitaet/TASK-001, 02-agenten-kern-und-kontinuitaet/TASK-002
 Parallel: ja
 *(vormals TASK-006 im Gesamtplan)*
 

@@ -1,9 +1,9 @@
 # TASK-003: Szenen-Schritt in die Schreib-Pipeline
 Status: ⏳ ausstehend
 Abhängig von: [TASK-002]
-Abhängig von (plan-übergreifend): agenten-kern-und-kontinuitaet/TASK-008
+Abhängig von (plan-übergreifend): 02-agenten-kern-und-kontinuitaet/TASK-008
 Parallel: nein
-*(der Szenen-Anteil des frueheren TASK-013 — das Geruest liegt in `agenten-kern-und-kontinuitaet/TASK-008`)*
+*(der Szenen-Anteil des frueheren TASK-013 — das Geruest liegt in `02-agenten-kern-und-kontinuitaet/TASK-008`)*
 
 ## Beschreibung
 Der in Plan 2 dokumentierte Szenen-Slot der `writing_pipeline` wird gefuellt:
@@ -22,7 +22,7 @@ writing_pipeline = SequentialAgent(
 ```
 
 Zusaetzlich:
-- Das Fixture-`scene_draft` aus Plan 2 wird entfernt; der Slot-Test aus `agenten-kern-und-kontinuitaet/TASK-008` wird auf den echten Agenten umgestellt.
+- Das Fixture-`scene_draft` aus Plan 2 wird entfernt; der Slot-Test aus `02-agenten-kern-und-kontinuitaet/TASK-008` wird auf den echten Agenten umgestellt.
 - Der Orchestrator (Plan 2/TASK-007) bekommt das Routing „Schreibe Kapitel N, Szene M → writing_pipeline"; die Pipeline wird als Sub-Agent registriert, die Instruction erweitert (nicht neu geschrieben).
 - Continuity-Check (Plan 2/TASK-011) haengt als `AgentTool` vor dem Editor-Loop; bei `severity: high` wird die Szene nicht geschrieben.
 - Post-Write-Hooks (Timeline/Character-State, Plan 2/TASK-012) werden scharf geschaltet: nach erfolgreichem `write_scene` laufen `append_event` und `update_character` automatisch.

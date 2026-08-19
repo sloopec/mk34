@@ -2,7 +2,7 @@
 Status: ⏳ ausstehend
 Abhängig von: [TASK-009]
 Parallel: nein
-*(vormals TASK-014 im Gesamtplan — ohne die Szenen-Cases; die vier Beispielszenen-Cases A–D und `show_dont_tell` auf Szenentext liegen in `szenen-und-lokales-llm/TASK-005`)*
+*(vormals TASK-014 im Gesamtplan — ohne die Szenen-Cases; die vier Beispielszenen-Cases A–D und `show_dont_tell` auf Szenentext liegen in `03-szenen-und-lokales-llm/TASK-005`)*
 
 ## Beschreibung
 Plan-2-Gate. Die Eval-Suite wird von „liefert der Agent eine gute Antwort" auf „nimmt das System den richtigen Weg" erweitert.

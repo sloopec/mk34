@@ -1,6 +1,6 @@
 # TASK-001: Manuskript-Tools (read/write/list/stats)
 Status: ⏳ ausstehend
-Abhängig von (plan-übergreifend): fundament-und-kontext/TASK-003
+Abhängig von (plan-übergreifend): 01-fundament-und-kontext/TASK-003
 Parallel: ja
 *(vormals TASK-004 im Gesamtplan)*
 
@@ -18,7 +18,7 @@ Szenengrenzen werden ueber Markdown-Marker realisiert (z. B. `<!-- scene:2 -->`)
 
 Sicherheit: alle Pfade gegen `MK34_BOOK_ROOT` kanonisieren und Traversal (`..`, absolute Pfade) ablehnen — Kapitel-/Szenennummern kommen aus Modell-Output. `MK34_BOOK_ROOT` zeigt gemaess E5 auf `books/life_link/` im Repo-Root, ausserhalb von `mk34-book-agent/`.
 
-Hinweis zur Planaufteilung: die Tools sind szenen-agnostisch (Dateizugriff) und gehoeren deshalb hierher; der Agent, der `write_scene` kreativ befuellt, kommt erst in `szenen-und-lokales-llm/TASK-002`.
+Hinweis zur Planaufteilung: die Tools sind szenen-agnostisch (Dateizugriff) und gehoeren deshalb hierher; der Agent, der `write_scene` kreativ befuellt, kommt erst in `03-szenen-und-lokales-llm/TASK-002`.
 
 ## Akzeptanzkriterien
 - [ ] Alle vier Tools implementiert, mit Docstrings, dict-Return, `{"status": ...}`-Konvention

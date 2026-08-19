@@ -1,7 +1,7 @@
 # TASK-004: Content-Klassifikation und lokales Routing
 Status: ⏳ ausstehend
 Abhängig von: [TASK-001, TASK-003]
-Abhängig von (plan-übergreifend): agenten-kern-und-kontinuitaet/TASK-012, agenten-kern-und-kontinuitaet/TASK-013
+Abhängig von (plan-übergreifend): 02-agenten-kern-und-kontinuitaet/TASK-012, 02-agenten-kern-und-kontinuitaet/TASK-013
 Parallel: nein
 *(vormals TASK-018 im Gesamtplan)*
 

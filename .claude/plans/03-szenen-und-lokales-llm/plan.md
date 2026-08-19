@@ -9,9 +9,9 @@ Dieser Plan bündelt **alle Szenen-Anteile** des Systems: den Scene Agent, die A
 
 | Alt (Gesamtplan) | Neu | Anmerkung zur Trennung |
 |---|---|---|
-| TASK-002 Model-Router (nur der lokale-LLM-Anteil) | TASK-001 | Health-Check, `MK34_LOCAL_*`, Fallback-Verbot — herausgetrennt aus `fundament-und-kontext/TASK-002` |
+| TASK-002 Model-Router (nur der lokale-LLM-Anteil) | TASK-001 | Health-Check, `MK34_LOCAL_*`, Fallback-Verbot — herausgetrennt aus `01-fundament-und-kontext/TASK-002` |
 | TASK-006 Scene Agent | TASK-002 | Start auf Gemini (E6), Ziel lokal |
-| TASK-013 Schreib-Pipeline (nur der Szenen-Schritt) | TASK-003 | füllt den in `agenten-kern-und-kontinuitaet/TASK-008` dokumentierten Szenen-Slot |
+| TASK-013 Schreib-Pipeline (nur der Szenen-Schritt) | TASK-003 | füllt den in `02-agenten-kern-und-kontinuitaet/TASK-008` dokumentierten Szenen-Slot |
 | TASK-018 Content-Klassifikation und Routing | TASK-004 | unverändert in der Substanz; Classifier startet auf Gemini |
 | TASK-008/TASK-014 (nur die Szenen-Eval-Anteile) | TASK-005 | `scene-writing.json`, `uncensored-routing.json`, deterministische Szenen-Metriken, `show_dont_tell` |
 

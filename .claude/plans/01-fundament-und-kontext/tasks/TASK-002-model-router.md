@@ -19,7 +19,7 @@ def model_for(role: str) -> str | BaseLlm:
         from google.adk.models.lite_llm import LiteLlm
         return LiteLlm(model=model_id)             # vorgesehen, spaeter
     if model_id == "local":
-        raise NotImplementedError("Lokales LLM: szenen-und-lokales-llm/TASK-001")
+        raise NotImplementedError("Lokales LLM: 03-szenen-und-lokales-llm/TASK-001")
     raise ValueError(f"Unbekannter Provider: {model_id}")
 ```
 
@@ -31,7 +31,7 @@ Zusätzlich:
 - Root-Agent (`app/agent.py`, aktuell `MODEL = "gemini-3.6-flash"` aus dem Scaffold) auf `model_for("orchestrator")` umstellen — die Modelländerung ist im Rahmen von E6 explizit beauftragt (Code-Preservation-Ausnahme dokumentieren).
 - Pydantic-Settings lesen alle Werte aus `.env`; `.env.example` auf das neue `MK34_MODEL_*`-Schema aktualisieren (die alten `MK34_CLOUD_*_MODEL`-Zeilen ersetzen). **Die `.env` selbst wird nicht gelesen oder geändert** (Regel in `mk34-book-agent/CLAUDE.md`); `GEMINI_API_KEY` ist laut User vorhanden.
 - Fehlender `GEMINI_API_KEY` → klare Fehlermeldung, kein stiller Fallback.
-- Der lokale-LLM-Anteil des früheren Router-Tasks (Health-Check, `MK34_LOCAL_*`, Fallback-Logik) ist **herausgetrennt**: → `szenen-und-lokales-llm/TASK-001`.
+- Der lokale-LLM-Anteil des früheren Router-Tasks (Health-Check, `MK34_LOCAL_*`, Fallback-Logik) ist **herausgetrennt**: → `03-szenen-und-lokales-llm/TASK-001`.
 
 ## Akzeptanzkriterien
 - [ ] `model_for(role)` liefert für alle neun Rollen den korrekten Wert; Gemini-Rollen liefern einen nackten String, kein Wrapper-Objekt
