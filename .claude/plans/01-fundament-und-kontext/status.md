@@ -5,7 +5,7 @@ Aktualisiert: 2026-08-19T00:00:00Z
 |----------|------------------------------------------------------|----------------|----------------------|----------------------|
 | TASK-001 | Projekt mit agents-cli scaffolden (Prototype)        | ✅ erledigt     | 2026-08-16T00:00:00Z | 2026-08-16T00:00:00Z |
 | TASK-002 | Model-Router (Gemini-first, provider-agnostisch)     | ✅ erledigt     | 2026-08-19T00:00:00Z | 2026-08-19T00:00:00Z |
-| TASK-003 | Kontext-Store aus basics.md aufbauen                 | ⏳ ausstehend   | —                    | —                    |
+| TASK-003 | Kontext-Store aus basics.md aufbauen                 | ✅ erledigt     | 2026-08-19T00:00:00Z | 2026-08-19T00:00:00Z |
 
 Statuswerte: `⏳ ausstehend` → `🔄 in Bearbeitung` → `✅ erledigt` oder `❌ abgebrochen`
 

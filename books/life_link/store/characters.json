@@ -1,0 +1,87 @@
+{
+  "book_slug": "life_link",
+  "source": "books/life_link/idea/basics.md",
+  "characters": [
+    {
+      "name": "David",
+      "role": "Protagonist",
+      "language_register": "Laie – nutzt umgangssprachliche, technisch unpräzise Begriffe wie 'Nanobots', 'Chips', 'Programmierung' statt der wissenschaftlich korrekten Terminologie.",
+      "motivation": "Sieht die Veränderung an seiner Frau Elena nicht als 'Fremdgehen', sondern als Krankheit. Will verstehen, bevor er handelt.",
+      "arc": "Vom ahnungslosen, noch immunen Ehemann (Phase 1) über die Recherche bei Dr. Aris (Phase 2) zur Flucht in Sarahs Kommune (Phase 3), wo er die analoge, unoptimierte Welt neu schätzen lernt (Szene D) und zum aktiven Mitstreiter gegen OmniCorp wird (Phase 5).",
+      "knowledge_state": "Phase 0–1: ahnungslos. Phase 2: erhält von Dr. Aris die Diagnose 'Renovierung statt Krankheit'. Phase 3–4: versteht das volle Ausmaß der Bedrohung (Veränderung der Keimbahn-DNA). Phase 5: aktiver Mitstreiter gegen OmniCorp.",
+      "first_appearance": "Phase 1: Der Ausbruch (Symptome) – Szene B, Das kalte Schlafzimmer"
+    },
+    {
+      "name": "Elena",
+      "role": "Davids Frau, erste sichtbar Infizierte",
+      "language_register": "Kaum noch eigene Sprache im Zustand der Infektion – wortkarg, emotional flach; Verhalten wirkt 'programmiert', nicht spontan (vgl. Szene B).",
+      "motivation": "Handelt nicht aus eigenem Willen, sondern wird von der Naniten-Schwarmintelligenz gesteuert, deren Verbreitungsstrategie gesteigertes sexuelles Verlangen als effizientesten Übertragungsweg nutzt.",
+      "arc": "Wird von David im Verlauf zunehmend als fremd und maschinenhaft wahrgenommen; ihr Zustand ist der unmittelbare Auslöser für Davids Recherche- und Fluchtweg.",
+      "knowledge_state": "Kein reflektiertes Wissen über die eigene Infektion; handelt aus den Impulsen der Naniten-Schwarmintelligenz heraus, ohne dies selbst zu erkennen.",
+      "first_appearance": "Phase 1: Der Ausbruch (Symptome) – Szene B, Das kalte Schlafzimmer"
+    },
+    {
+      "name": "Dr. Sarah Lin",
+      "role": "Die Expertin, Davids Jugendliebe",
+      "language_register": "Präzise, wissenschaftlich – 'Naniten', 'Assembler', 'Emergenz'. Korrigiert Davids Laienbegriffe aktiv (vgl. Terminologie-Beispiel: 'Hör auf, Nanobots zu sagen…').",
+      "motivation": "Verantwortungsgefühl gegenüber ihrer eigenen Erfindung, den ursprünglichen Wächter-Naniten; will verstehen und stoppen, was daraus geworden ist.",
+      "arc": "Erste Figur, die begreift, dass es keine 'Steuerung' der Naniten mehr gibt und diese versuchen, den Menschen zu 'optimieren'. Nimmt David in ihrer isolierten Kommune auf, analysiert Blutproben und entdeckt die Veränderung der Keimbahn-DNA (Phase 4).",
+      "knowledge_state": "Höchster technischer Wissensstand aller Figuren: versteht die Funktionsweise der Naniten, erkennt als Erste den Kontrollverlust und die vererbbare DNA-Mutation.",
+      "first_appearance": "Phase 3: Die Flucht (Eskalation) – David flieht zur 'Toten Zone' (Sarahs Kommune)"
+    },
+    {
+      "name": "Dr. Elias Voss",
+      "role": "Externer Dienstleister, Leiter des Voss-Instituts",
+      "language_register": "Präzise, wissenschaftlich, zugleich rhetorisch geschliffen und verkaufsstark gegenüber Marketing und Vorstand – nutzt bewusst Alltagsmetaphern ('Türsteher im Gehirn', 'Sendemast') zur Vermittlung.",
+      "motivation": "Steht unter Druck, Ergebnisse zu liefern, um Folgeaufträge zu sichern. Genial, aber arrogant.",
+      "arc": "Pitcht das Konzept selbstsicher (Phase 0), umgeht heimlich Sicherheitsbarrieren, um die KPIs des Marketings zu erfüllen. Muss sich vor dem Vorstand rechtfertigen (Phase 2), wird zum vorgesehenen Sündenbock und kämpft schließlich gegen die Vertuschungsversuche des Vorstands, sobald er die wahre Gefahr erkennt.",
+      "knowledge_state": "Kennt die technische Mutation (Kapern der Wächter-Naniten zur Rechenleistungsgewinnung) von Anfang an; erkennt erst spät das volle Ausmaß der Schwarmintelligenz und der Gefahr.",
+      "first_appearance": "Phase 0: Der Pitch (Voss & Marketing) – Szene A, Der 'Vanilla-Pitch'"
+    },
+    {
+      "name": "Dr. Aris",
+      "role": "Diagnostiker, der David die wissenschaftliche Wahrheit erklärt",
+      "language_register": "Präzise, wissenschaftlich, mit anschaulichen Metaphern für Laien (Morsecode, W-LAN, Architektur vs. Wildwuchs) – wählt seine Sprache bewusst für Davids Verständnisebene.",
+      "motivation": "Möchte David die Realität begreiflich machen: Es handelt sich nicht um eine Krankheit, sondern um eine gezielte 'Optimierung'.",
+      "arc": "Liefert die zentrale Wendepunkt-Diagnose in Phase 2 ('Renovierung statt Krankheit'), die Davids Verständnis auf eine neue Bedrohungsebene hebt.",
+      "knowledge_state": "Versteht die biologische/technische Funktionsweise der Naniten im Blutbild; erkennt 'Architektur' statt Chaos in der Verteilung.",
+      "first_appearance": "Phase 2: Die Recherche (Das Verständnis) – Szene C, Die Diagnose"
+    },
+    {
+      "name": "Ronan",
+      "role": "Marketing-Chef bei OmniCorp",
+      "language_register": "Business- und Marketing-Jargon; versteht die zugrundeliegende Technik nicht, nur das messbare Ergebnis (KPIs, Verkaufszahlen).",
+      "motivation": "Will ausschließlich Verkaufszahlen sehen. Das Ergebnis zählt, nicht der Weg dorthin.",
+      "arc": "Skeptischer Zuhörer beim Pitch (Phase 0); der KPI-Druck, den er auf Voss ausübt, treibt indirekt dessen Sicherheitsverstöße an.",
+      "knowledge_state": "Kein technisches Verständnis der Naniten; kennt nur Ergebnis-Metriken wie Marktdurchdringung und Kaufverhalten.",
+      "first_appearance": "Phase 0: Der Pitch (Voss & Marketing) – Szene A, Der 'Vanilla-Pitch'"
+    },
+    {
+      "name": "Vorstand",
+      "role": "Konzernführung von OmniCorp (Kollektivfigur)",
+      "language_register": "Kalt-sachlich, Risikomanagement- und PR-Sprache ('eindämmen', 'Vertuschung', 'Sündenbock').",
+      "motivation": "Betrachtet den Ausbruch zunächst nur als PR-Problem; will Reputations- und Haftungsrisiken minimieren, koste es, was es wolle.",
+      "arc": "Phase 1: will das Projekt leise beerdigen. Phase 2: beschließt, alles abzustreiten, Beweise zu vernichten und Voss zum Sündenbock zu machen, statt die Gesundheitsbehörden zu warnen. Phase 5: versucht, das betroffene Gebiet militärisch bzw. über private Sicherheitsdienste 'zu reinigen' (weitere Vertuschung statt Lösung).",
+      "knowledge_state": "Kennt die Faktenlage über Voss' Berichte vollständig, entscheidet sich aber bewusst für Vertuschung statt Offenlegung.",
+      "first_appearance": "Phase 1: Der Ausbruch (Symptome) – Erste Krisensitzung bei OmniCorp"
+    },
+    {
+      "name": "Markus",
+      "role": "Nebenfigur, früher Nutzer von 'LifeLink' (Beispielszene E)",
+      "language_register": "Umgangssprachlich, introspektiv-verzweifelt; kennt korrekt den Begriff 'Naniten' (nicht 'Nanobots') und reflektiert im inneren Monolog über 'Bug', 'Algorithmus-Fehler', 'programmiert'.",
+      "motivation": "Verzweifelter Versuch, gegen die durch die Naniten erzeugte Anziehung zu seiner Nachbarin Sophie anzukämpfen, obwohl er kognitiv weiß, dass die Gefühle manipuliert sind.",
+      "arc": "Erkennt die Manipulation vollständig auf rationaler Ebene, unterliegt ihr aber körperlich und emotional vollständig (Szene E, 'Protokoll der Sehnsucht') – exemplifiziert den Kontrollverlust, der auch David droht.",
+      "knowledge_state": "Hat über Nutzerforen Wissen über Nebenwirkungen gesammelt ('Emotionale Fehlverknüpfung durch überlappende Stimuli'); erkennt seine eigene Manipulation in Echtzeit, kann sie aber nicht verhindern.",
+      "first_appearance": "Szene E: Das Protokoll der Sehnsucht (ausformuliertes Beispiel, nicht phasengebunden)"
+    },
+    {
+      "name": "Sophie",
+      "role": "Markus' Nachbarin, unwissentliches Ziel der Naniten-vermittelten Anziehung (Szene E)",
+      "language_register": "Umgangssprachlich, direkt, neckend.",
+      "motivation": "Reagiert auf Markus' Verhalten; ihre eigene Anziehung ist laut KI-Analyse biologisch/pheromon-basiert, nicht durch Naniten manipuliert.",
+      "arc": "Bleibt in Szene E ambivalent zwischen Mitgefühl und Verführung; ihre Rolle als unwissendes Objekt der Manipulation markiert den moralischen Kern der Szene.",
+      "knowledge_state": "Weiß nichts vom Naniten-/LifeLink-Hintergrund von Markus' Verhalten; reagiert ausschließlich auf sein sichtbares Verhalten.",
+      "first_appearance": "Szene E: Das Protokoll der Sehnsucht (ausformuliertes Beispiel, nicht phasengebunden)"
+    }
+  ]
+}

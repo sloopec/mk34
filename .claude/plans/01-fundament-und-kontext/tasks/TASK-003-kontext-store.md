@@ -1,5 +1,5 @@
 # TASK-003: Kontext-Store aus basics.md aufbauen
-Status: ⏳ ausstehend
+Status: ✅ erledigt
 Abhängig von: [TASK-001]
 Parallel: ja
 
@@ -32,12 +32,14 @@ Pflicht-Inhalte im `style_guide.md`, weil sie spaeter Eval-Metriken sind:
 Extraktion darf einmalig LLM-gestuetzt erfolgen, das Ergebnis wird aber **vom Autor geprueft und eingecheckt** — der Store ist ab dann die Wahrheit, nicht `basics.md`.
 
 ## Akzeptanzkriterien
-- [ ] Alle Dateien existieren, sind valides JSON/Markdown und eingecheckt
-- [ ] `characters.json` enthaelt pro Figur: `name`, `role`, `language_register`, `motivation`, `arc`, `knowledge_state`, `first_appearance`
-- [ ] `plot_outline.json` bildet Phase 0–5 aus `basics.md` vollstaendig ab
-- [ ] `world_bible.md` listet die Naniten-Regeln als nummerierte, pruefbare Constraints
-- [ ] `style_guide.md` enthaelt die Sprachregister-Tabelle pro Figur
-- [ ] Keine Referenz auf den nicht existierenden Pfad `src/setup/basics.md` irgendwo im Repo
+- [x] Alle Dateien existieren, sind valides JSON/Markdown und eingecheckt
+- [x] `characters.json` enthaelt pro Figur: `name`, `role`, `language_register`, `motivation`, `arc`, `knowledge_state`, `first_appearance`
+- [x] `plot_outline.json` bildet Phase 0–5 aus `basics.md` vollstaendig ab
+- [x] `world_bible.md` listet die Naniten-Regeln als nummerierte, pruefbare Constraints
+- [x] `style_guide.md` enthaelt die Sprachregister-Tabelle pro Figur
+- [x] Keine Referenz auf den nicht existierenden Pfad `src/setup/basics.md` irgendwo im Repo (der einzige verbleibende Treffer in `docs/PLAN.md` steht bereits im eigenen Korrektur-Hinweis dieses eingefrorenen Dokuments)
+
+Details und Verifikationsschritte: `walkthroughs/TASK-003-kontext-store.md`.
 
 ## Betroffene Dateien
 - `books/life_link/store/characters.json`
