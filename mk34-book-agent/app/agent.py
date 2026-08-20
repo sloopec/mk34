@@ -22,6 +22,11 @@ from google.adk.models import Gemini
 from google.genai import types
 
 from app.models.router import model_for
+from app.tools.context_loader import (
+    load_plot_outline,
+    load_style_guide,
+    load_world_bible,
+)
 
 # mk34 (Entscheidung E6, plan.md): Modell kommt aus dem zentralen Router statt
 # hartcodiert zu sein. Bewusst beauftragte Modelländerung (Code-Preservation-
@@ -67,6 +72,14 @@ def get_current_time(query: str) -> str:
 # (retry_options preserved). A future `.env` switch to `anthropic/*` would
 # make `model_for` return a `LiteLlm` instance instead, which ADK's `Agent`
 # accepts directly -- so only the string case needs the `Gemini(...)` wrapper.
+# mk34 (Plan 2/TASK-003, interim): root_agent gets the read-only context-loader
+# tools so the eval-grundgeruest's book-domain cases (character_lookup,
+# plot_question -- see tests/eval/datasets/basic-dataset.json) are grounded in
+# books/life_link/store/ instead of the model guessing. This is a deliberate,
+# time-boxed bridge -- TASK-007 replaces root_agent entirely with the
+# orchestrator (sub_agents for Plot/Editor, AgentTool for Character), which
+# consumes these same tools properly. Nothing here should be extended further;
+# new capability goes into the TASK-004+ agents instead.
 root_agent = Agent(
     name="root_agent",
     model=(
@@ -74,8 +87,21 @@ root_agent = Agent(
         if isinstance(MODEL, str)
         else MODEL
     ),
-    instruction="You are a helpful AI assistant designed to provide accurate and useful information.",
-    tools=[get_weather, get_current_time],
+    instruction=(
+        "You are a helpful AI assistant designed to provide accurate and useful "
+        "information. For questions about the 'Life Link' book project -- its "
+        "characters, world rules, or plot -- always call load_world_bible, "
+        "load_style_guide, or load_plot_outline first and ground your answer in "
+        "their results. Never invent character or plot details from your own "
+        "knowledge."
+    ),
+    tools=[
+        get_weather,
+        get_current_time,
+        load_world_bible,
+        load_style_guide,
+        load_plot_outline,
+    ],
 )
 
 app = App(

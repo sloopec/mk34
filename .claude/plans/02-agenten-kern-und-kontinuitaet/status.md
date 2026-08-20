@@ -5,7 +5,7 @@ Aktualisiert: 2026-08-17T00:00:00Z
 |----------|--------------------------------------------------------|----------------|-----------|---------------|
 | TASK-001 | Manuskript-Tools (read/write/list/stats)               | ✅ erledigt     | 2026-08-19T00:00:00Z | 2026-08-19T01:00:00Z |
 | TASK-002 | Kontext-Loader-Tools                                   | ✅ erledigt     | 2026-08-19T01:15:00Z | 2026-08-19T01:45:00Z |
-| TASK-003 | Eval-Grundgerüst und Judge-Bibliothek                  | ⏳ ausstehend   | —         | —             |
+| TASK-003 | Eval-Grundgerüst und Judge-Bibliothek                  | ✅ erledigt (Live-Score-Nachweis blockiert, siehe Walkthrough) | 2026-08-19T02:00:00Z | 2026-08-20T00:30:00Z |
 | TASK-004 | Plot Agent                                             | ⏳ ausstehend   | —         | —             |
 | TASK-005 | Character Agent und Figuren-Tools                      | ⏳ ausstehend   | —         | —             |
 | TASK-006 | Editor Agent (Lektorat)                                | ⏳ ausstehend   | —         | —             |
