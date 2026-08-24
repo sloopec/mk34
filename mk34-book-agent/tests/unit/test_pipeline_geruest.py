@@ -13,13 +13,14 @@
 # limitations under the License.
 
 """Unit tests for `app/pipelines/writing.py` (TASK-008, Szenen-Schritt scharf
-geschaltet in Plan 3/TASK-003).
+geschaltet in Plan 3/TASK-003, Content-Klassifikation/Routing in TASK-004).
 
-Structure, Szenen-/Kontinuitaets-Slot-Position, die aktive-Szene-Extraktion
-und der Persistenz-/Continuity-Gate-Callback sind direkt getestet; der volle
-End-to-End-Lauf (Scene Agent -> Continuity -> Editor-Loop -> Persistenz)
-gegen die echte Gemini-API ist separat per `InMemoryRunner` verifiziert --
-siehe TASK-003-Walkthrough.
+Structure, Szenen-/Kontinuitaets-/Classifier-Slot-Position, die aktive-Szene-
+und Override-Extraktion sowie der Persistenz-/Continuity-/Routing-Callback
+sind direkt getestet; der volle End-to-End-Lauf (Classifier -> Scene Agent
+-> Continuity -> Editor-Loop -> Persistenz) gegen die echte Gemini-API ist
+separat per `agents-cli run`/`InMemoryRunner` verifiziert -- siehe
+TASK-003/004-Walkthroughs.
 """
 
 from __future__ import annotations
@@ -32,46 +33,59 @@ from pydantic import Field
 
 from app.agents.quality_checker import QualityChecker
 from app.pipelines.writing import (
+    _apply_route_decision,
+    _apply_route_override_from_user_message,
     _ContinuityGate,
     _detect_infection_status,
     _persist_or_draft,
+    _RoutedSceneStep,
     _set_active_scene_from_user_message,
     _update_timeline_and_character_state,
     create_writing_pipeline,
 )
 
 
-def test_pipeline_has_six_steps_in_order() -> None:
+def test_pipeline_has_seven_steps_in_order() -> None:
     pipeline = create_writing_pipeline()
     names = [a.name for a in pipeline.sub_agents]
     assert names == [
         "context_loader_step",
         "plot_beat_step",
         "character_brief_step",
-        "scene_agent",
+        "classifier_agent",
+        "scene_agent_step",
         "continuity_agent",
         "continuity_gate",
     ]
 
 
-def test_scene_agent_is_at_fixed_position_three() -> None:
-    """Fixiert die Slot-Position aus Entscheidung E8 (Plan 2/TASK-008) --
-    `create_scene_agent()` ersetzt das dortige Fixture 1:1 an dieser Stelle."""
+def test_classifier_step_is_at_fixed_position_three() -> None:
     pipeline = create_writing_pipeline()
     slot = pipeline.sub_agents[3]
-    assert slot.name == "scene_agent"
-    assert slot.output_key == "scene_draft"
+    assert slot.name == "classifier_agent"
+    assert slot.output_key == "route_decision"
+    assert slot.after_agent_callback is _apply_route_decision
+
+
+def test_scene_agent_step_is_a_routed_scene_step() -> None:
+    """Fixiert die Slot-Position aus Entscheidung E8 (Plan 2/TASK-008) --
+    `_RoutedSceneStep` ersetzt den statischen `create_scene_agent()`-Aufruf
+    aus TASK-003, um `state["route"]` (TASK-004) pro Turn neu aufzuloesen."""
+    pipeline = create_writing_pipeline()
+    slot = pipeline.sub_agents[4]
+    assert isinstance(slot, _RoutedSceneStep)
+    assert slot.name == "scene_agent_step"
 
 
 def test_continuity_agent_runs_before_the_continuity_gate() -> None:
     pipeline = create_writing_pipeline()
-    assert pipeline.sub_agents[4].name == "continuity_agent"
-    assert isinstance(pipeline.sub_agents[5], _ContinuityGate)
+    assert pipeline.sub_agents[5].name == "continuity_agent"
+    assert isinstance(pipeline.sub_agents[6], _ContinuityGate)
 
 
 def test_continuity_gate_wraps_editing_loop() -> None:
     pipeline = create_writing_pipeline()
-    gate = pipeline.sub_agents[5]
+    gate = pipeline.sub_agents[6]
     assert isinstance(gate, _ContinuityGate)
     editing_loop = gate.sub_agents[0]
     assert isinstance(editing_loop, LoopAgent)
@@ -81,9 +95,12 @@ def test_continuity_gate_wraps_editing_loop() -> None:
     assert isinstance(editing_loop.sub_agents[1], QualityChecker)
 
 
-def test_pipeline_has_active_scene_extraction_callback() -> None:
+def test_pipeline_has_active_scene_and_override_extraction_callbacks() -> None:
     pipeline = create_writing_pipeline()
-    assert pipeline.before_agent_callback is _set_active_scene_from_user_message
+    assert pipeline.before_agent_callback == [
+        _set_active_scene_from_user_message,
+        _apply_route_override_from_user_message,
+    ]
 
 
 def test_context_loader_step_has_no_output_key() -> None:
@@ -140,6 +157,142 @@ def test_set_active_scene_handles_missing_user_content() -> None:
     ctx = _FakeCallbackContext({"active_chapter": 1, "active_scene": 1})
     _set_active_scene_from_user_message(ctx)  # must not raise
     assert ctx.state == {"active_chapter": 1, "active_scene": 1}
+
+
+# --- _apply_route_override_from_user_message (TASK-004) -----------------------
+
+
+def test_route_override_detects_flag_local() -> None:
+    ctx = _FakeCallbackContext({}, user_text="Schreibe die Szene. --model local")
+    _apply_route_override_from_user_message(ctx)
+    assert ctx.state["route_override"] == "local"
+
+
+def test_route_override_detects_flag_cloud() -> None:
+    ctx = _FakeCallbackContext({}, user_text="Schreibe die Szene. --model cloud")
+    _apply_route_override_from_user_message(ctx)
+    assert ctx.state["route_override"] == "cloud"
+
+
+def test_route_override_detects_natural_language_local() -> None:
+    ctx = _FakeCallbackContext({}, user_text="Bitte schreibe das lokal.")
+    _apply_route_override_from_user_message(ctx)
+    assert ctx.state["route_override"] == "local"
+
+
+def test_route_override_detects_natural_language_cloud() -> None:
+    ctx = _FakeCallbackContext({}, user_text="Schreibe das in der Cloud.")
+    _apply_route_override_from_user_message(ctx)
+    assert ctx.state["route_override"] == "cloud"
+
+
+def test_route_override_absent_without_match() -> None:
+    ctx = _FakeCallbackContext({}, user_text="Schreibe Kapitel 3, Szene 2.")
+    _apply_route_override_from_user_message(ctx)
+    assert "route_override" not in ctx.state
+
+
+def test_route_override_handles_missing_user_content() -> None:
+    ctx = _FakeCallbackContext({})
+    _apply_route_override_from_user_message(ctx)  # must not raise
+    assert "route_override" not in ctx.state
+
+
+# --- _apply_route_decision (TASK-004) ------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_apply_route_decision_uses_classifier_result_without_override() -> None:
+    ctx = _FakeCallbackContext(
+        {
+            "route_decision": {
+                "route": "local",
+                "reason": "Koerperhorror",
+                "confidence": 0.9,
+            }
+        }
+    )
+    await _apply_route_decision(ctx)
+    assert ctx.state["route"] == "local"
+
+
+@pytest.mark.asyncio
+async def test_apply_route_decision_override_beats_classifier() -> None:
+    ctx = _FakeCallbackContext(
+        {
+            "route_override": "local",
+            "route_decision": {
+                "route": "cloud",
+                "reason": "Boardroom",
+                "confidence": 0.8,
+            },
+        }
+    )
+    await _apply_route_decision(ctx)
+    assert ctx.state["route"] == "local"
+
+
+@pytest.mark.asyncio
+async def test_apply_route_decision_defaults_to_cloud_without_decision() -> None:
+    ctx = _FakeCallbackContext({})
+    await _apply_route_decision(ctx)
+    assert ctx.state["route"] == "cloud"
+
+
+# --- _RoutedSceneStep (TASK-004) ------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_routed_scene_step_builds_scene_agent_with_current_route(
+    monkeypatch,
+) -> None:
+    captured_routes = []
+
+    class _FakeSceneAgent:
+        async def run_async(self, ctx):
+            return
+            yield  # pragma: no cover
+
+    def _fake_create_scene_agent(route=None):
+        captured_routes.append(route)
+        return _FakeSceneAgent()
+
+    monkeypatch.setattr(
+        "app.pipelines.writing.create_scene_agent", _fake_create_scene_agent
+    )
+    step = _RoutedSceneStep(name="scene_agent_step")
+    ctx = _FakeInvocationContext({"route": "local"})
+
+    events = [event async for event in step._run_async_impl(ctx)]
+
+    assert captured_routes == ["local"]
+    assert events == []
+
+
+@pytest.mark.asyncio
+async def test_routed_scene_step_defaults_route_to_none_without_state(
+    monkeypatch,
+) -> None:
+    captured_routes = []
+
+    class _FakeSceneAgent:
+        async def run_async(self, ctx):
+            return
+            yield  # pragma: no cover
+
+    def _fake_create_scene_agent(route=None):
+        captured_routes.append(route)
+        return _FakeSceneAgent()
+
+    monkeypatch.setattr(
+        "app.pipelines.writing.create_scene_agent", _fake_create_scene_agent
+    )
+    step = _RoutedSceneStep(name="scene_agent_step")
+    ctx = _FakeInvocationContext({})
+
+    [event async for event in step._run_async_impl(ctx)]
+
+    assert captured_routes == [None]
 
 
 # --- _ContinuityGate (TASK-003) --------------------------------------------------

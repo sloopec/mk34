@@ -79,6 +79,19 @@ class ContinuityReport(BaseModel):
     )
 
 
+class RouteDecision(BaseModel):
+    """Strukturierte Routing-Entscheidung des Content-Classifiers (Plan 3,
+    TASK-004): lokal (unzensiert) oder Cloud fuer den Scene Agent."""
+
+    route: Literal["local", "cloud"] = Field(
+        description="Route fuer den Scene Agent: 'local' (unzensiert) oder 'cloud'."
+    )
+    reason: str = Field(description="Kurze Begruendung der Routing-Entscheidung.")
+    confidence: float = Field(
+        description="Konfidenz der Entscheidung, 0.0 (unsicher) bis 1.0 (sehr sicher)."
+    )
+
+
 class EditorVerdict(BaseModel):
     """Strukturiertes Lektorats-Verdikt des Editor Agent (TASK-006)."""
 

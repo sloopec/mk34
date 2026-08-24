@@ -43,6 +43,17 @@ Modell fuer *diese* Anfrage" ist deshalb zweigeteilt:
 Ohne explizite `route` faellt `model_for("scene", ...)` auf die Cloud-Route
 zurueck (`MK34_MODEL_SCENE`) -- das ist Stufe A (Plan 3, TASK-002/003): der
 Schreib-Workflow ist ohne VM und ohne Classifier lauffaehig.
+
+**Refusal-Erkennung (Plan 3, TASK-004, Entscheidung E9):** `is_refusal()`
+lebt bewusst hier (nicht im Pipeline-Code) -- "die Erkennung lebt an einer
+Stelle, damit die Provider-Umschaltung (E6) sie nicht dupliziert". Sie deckt
+sowohl das ADK-normalisierte `LlmResponse` (`finish_reason`, `error_code` --
+siehe `google.adk.models.llm_response.LlmResponse`, das `prompt_feedback.
+block_reason` bereits in `error_code` abbildet) als auch rohe Provider-Shapes
+(Gemini: `candidates[].finish_reason`, `prompt_feedback.block_reason`;
+Claude: `stop_reason`) per Duck-Typing ab -- ein `is_refusal`-Aufruf
+funktioniert also unabhaengig davon, ob er gegen ein ADK-`LlmResponse`-Objekt
+oder eine rohe SDK-Antwort laeuft.
 """
 
 from __future__ import annotations
@@ -233,3 +244,51 @@ def model_for(
         )
 
     return _resolve_cloud_model(model_id, settings)
+
+
+_REFUSAL_FINISH_REASONS = {"SAFETY", "PROHIBITED_CONTENT"}
+
+
+def _is_refusal_finish_reason(finish_reason: object) -> bool:
+    if finish_reason is None:
+        return False
+    name = getattr(finish_reason, "name", finish_reason)
+    return str(name).upper() in _REFUSAL_FINISH_REASONS
+
+
+def is_refusal(response: object) -> bool:
+    """Detects a provider refusal/safety-block signal (Entscheidung E9).
+
+    Provider-agnostic via duck-typing -- accepts an ADK-normalized
+    `google.adk.models.llm_response.LlmResponse`, a raw `google.genai`
+    response, or a raw/stubbed Anthropic-shaped response (`stop_reason`).
+
+    Args:
+        response: The model response to inspect.
+
+    Returns:
+        `True` if any known refusal signal is present:
+        - Claude: `response.stop_reason == "refusal"`.
+        - Gemini: `finish_reason` `SAFETY`/`PROHIBITED_CONTENT` on the
+          response itself (ADK's normalized `LlmResponse`) or on any of
+          `response.candidates` (raw `google.genai` response).
+        - Gemini prompt-level block: no candidates, but
+          `response.prompt_feedback.block_reason` set, or ADK's normalized
+          `LlmResponse.error_code` set (ADK maps `block_reason` there).
+    """
+    if getattr(response, "stop_reason", None) == "refusal":
+        return True
+
+    if _is_refusal_finish_reason(getattr(response, "finish_reason", None)):
+        return True
+    for candidate in getattr(response, "candidates", None) or []:
+        if _is_refusal_finish_reason(getattr(candidate, "finish_reason", None)):
+            return True
+
+    if getattr(response, "error_code", None):
+        return True
+    prompt_feedback = getattr(response, "prompt_feedback", None)
+    if getattr(prompt_feedback, "block_reason", None):
+        return True
+
+    return False

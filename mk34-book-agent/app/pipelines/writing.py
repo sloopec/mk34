@@ -55,6 +55,23 @@ analog zu `extract_timestamp`/`_detect_infection_status`) uebernimmt das als
 `before_agent_callback` der Pipeline; ohne Treffer bleiben die von
 `app/callbacks.py::initialize_state` gesetzten Defaults (Kapitel/Szene 1)
 unveraendert.
+
+**CONTENT-KLASSIFIKATION UND LOKALES ROUTING (Plan 3, TASK-004):** zwischen
+`character_brief_step` und dem Scene-Agent-Schritt haengt jetzt
+`_create_classifier_step()` (`app/agents/classifier_agent.py`) -- er
+schreibt eine strukturierte `RouteDecision` nach `state["route_decision"]`
+und danach (per `after_agent_callback`) den flachen String
+`state["route"]`, den `model_for("scene", route=...)` konsumiert. Ein
+manueller Override (`--model local`/`--model cloud` bzw. natuersprachlich,
+`_apply_route_override_from_user_message`) schlaegt die Classifier-
+Entscheidung immer. `_RoutedSceneStep` ersetzt den bisherigen statischen
+`create_scene_agent()`-Aufruf im Slot: sie baut den Scene Agent PRO
+Pipeline-Durchlauf frisch mit der aktuellen `state["route"]`, weil ADKs
+`Agent.model` sonst nur einmal bei der Konstruktion aufgeloest wird (siehe
+`app/models/router.py`-Docstring) -- zur Zeit der statischen Pipeline-
+Konstruktion (Prozessstart) ist `state["route"]` noch gar nicht bekannt.
+Kein stiller Cloud-Fallback bei nicht erreichbarer VM (TASK-001) gilt
+unveraendert -- die Route wird hier nur ENTSCHIEDEN, nicht mehr aufgeloest.
 """
 
 from __future__ import annotations
@@ -70,6 +87,7 @@ from google.adk.tools import AgentTool
 from google.genai import types
 
 from app.agents.character_agent import create_character_agent
+from app.agents.classifier_agent import create_classifier_agent
 from app.agents.continuity_agent import create_continuity_agent
 from app.agents.editor_agent import create_editor_agent
 from app.agents.quality_checker import QualityChecker
@@ -88,6 +106,18 @@ _HIGH_SEVERITY = "high"
 # ueber die gesamte Nachricht "greedy" (matcht die naechste Szenennummer nach
 # der Kapitelnummer, nicht irgendeine spaetere Zahl im Text).
 _ACTIVE_SCENE_RE = re.compile(r"[Kk]apitel\s*(\d+)\D{0,20}?[Ss]zene\s*(\d+)", re.DOTALL)
+
+# Manueller Routing-Override (TASK-004): "--model local"/"--model cloud" oder
+# eine natuersprachliche Anweisung ("schreibe das lokal"). Schlaegt den
+# Classifier immer.
+_OVERRIDE_FLAG_RE = re.compile(r"--model\s+(local|cloud)", re.IGNORECASE)
+_OVERRIDE_LOCAL_RE = re.compile(
+    r"schreib\w*\s+(es|das|die szene)?\s*(lokal|lokales modell)", re.IGNORECASE
+)
+_OVERRIDE_CLOUD_RE = re.compile(
+    r"schreib\w*\s+(es|das|die szene)?\s*(in der cloud|ueber die cloud|über die cloud|cloud)",
+    re.IGNORECASE,
+)
 
 
 def _create_context_loader_step() -> Agent:
@@ -152,6 +182,64 @@ def _set_active_scene_from_user_message(callback_context: CallbackContext) -> No
         return
     callback_context.state["active_chapter"] = int(match.group(1))
     callback_context.state["active_scene"] = int(match.group(2))
+
+
+def _apply_route_override_from_user_message(callback_context: CallbackContext) -> None:
+    """Manueller Routing-Override (TASK-004): `--model local`/`--model cloud`
+    oder eine natuersprachliche Anweisung. Setzt `state["route_override"]`,
+    das der Classifier-Schritt (`_apply_route_decision`) immer schlaegt."""
+    user_content = callback_context.user_content
+    if not user_content or not user_content.parts:
+        return
+    text = " ".join(part.text for part in user_content.parts if part.text)
+
+    flag_match = _OVERRIDE_FLAG_RE.search(text)
+    if flag_match:
+        callback_context.state["route_override"] = flag_match.group(1).lower()
+        return
+    if _OVERRIDE_LOCAL_RE.search(text):
+        callback_context.state["route_override"] = "local"
+        return
+    if _OVERRIDE_CLOUD_RE.search(text):
+        callback_context.state["route_override"] = "cloud"
+
+
+async def _apply_route_decision(callback_context: CallbackContext) -> None:
+    """`after_agent_callback` des Classifier-Schritts: schreibt das fuer
+    `model_for("scene", route=...)` konsumierbare `state["route"]` (ein
+    reiner String) aus `state["route_decision"]` (`RouteDecision`-Dict,
+    TASK-004) -- ein manueller Override (`state["route_override"]`) schlaegt
+    die Classifier-Entscheidung immer."""
+    state = callback_context.state
+    override = state.get("route_override")
+    if override:
+        state["route"] = override
+        return
+    decision = state.get("route_decision") or {}
+    state["route"] = decision.get("route", "cloud")
+
+
+def _create_classifier_step() -> Agent:
+    classifier = create_classifier_agent()
+    classifier.after_agent_callback = _apply_route_decision
+    return classifier
+
+
+class _RoutedSceneStep(BaseAgent):
+    """Baut den Scene Agent pro Pipeline-Durchlauf frisch mit der aktuellen
+    `state["route"]` (Classifier- oder manuelle Entscheidung, TASK-004) --
+    ADKs `Agent.model` wird sonst nur einmal bei der Konstruktion aufgeloest
+    (siehe `app/models/router.py`-Docstring), ein dynamischer Modellwechsel
+    zwischen lokal/Cloud pro Turn braucht deshalb eine frische Instanz statt
+    eines mutierbaren Felds. Komposition analog zu `_ContinuityGate`."""
+
+    async def _run_async_impl(
+        self, ctx: InvocationContext
+    ) -> AsyncGenerator[Event, None]:
+        route = ctx.session.state.get("route")
+        scene_agent = create_scene_agent(route=route)
+        async for event in scene_agent.run_async(ctx):
+            yield event
 
 
 def _format_conflict(conflict: dict) -> str:
@@ -319,14 +407,19 @@ def create_writing_pipeline() -> SequentialAgent:
         name="writing_pipeline",
         description=(
             "Deterministische Schreib-Pipeline: Kontext laden, Beat bestaetigen, "
-            "Figuren-Brief holen, Szene schreiben, Kontinuitaet pruefen, lektorieren."
+            "Figuren-Brief holen, lokal/Cloud klassifizieren, Szene schreiben, "
+            "Kontinuitaet pruefen, lektorieren."
         ),
-        before_agent_callback=_set_active_scene_from_user_message,
+        before_agent_callback=[
+            _set_active_scene_from_user_message,
+            _apply_route_override_from_user_message,
+        ],
         sub_agents=[
             _create_context_loader_step(),
             _create_plot_beat_step(),
             _create_character_brief_step(),
-            create_scene_agent(),
+            _create_classifier_step(),
+            _RoutedSceneStep(name="scene_agent_step"),
             create_continuity_agent(),
             continuity_gate,
         ],
