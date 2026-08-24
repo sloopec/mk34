@@ -1,5 +1,5 @@
 # Status: Szenen und lokales LLM (Plan 3)
-Aktualisiert: 2026-08-17T00:00:00Z
+Aktualisiert: 2026-08-24T00:00:00Z — Plan 3 abgeschlossen (siehe `feature_summary.md`)
 
 | Task-ID  | Titel                                                | Status         | Gestartet | Abgeschlossen |
 |----------|------------------------------------------------------|----------------|-----------|---------------|
