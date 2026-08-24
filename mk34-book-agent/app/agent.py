@@ -30,7 +30,8 @@ nicht neu geschrieben.
 """
 
 from google.adk.agents import Agent
-from google.adk.apps import App
+from google.adk.apps import App, ResumabilityConfig
+from google.adk.apps.app import EventsCompactionConfig
 from google.adk.models import Gemini
 from google.adk.tools import AgentTool
 from google.genai import types
@@ -83,7 +84,18 @@ root_agent = Agent(
     before_agent_callback=initialize_state,
 )
 
+# mk34 (TASK-008): lange Pipeline-Sessions (Kontext -> Beat -> Brief ->
+# Editor-Loop, ggf. ueber mehrere agents-cli-run-Aufrufe mit --session-id
+# fortgesetzt) sollen das Kontextfenster nicht sprengen (EventsCompactionConfig)
+# und ueber Prozess-Neustarts hinweg fortsetzbar sein (ResumabilityConfig) --
+# Voraussetzung dafuer ist der bereits in Plan 1 gewaehlte DatabaseSessionService
+# (Entscheidung E3, app/app_utils/services.py), nicht InMemorySessionService.
 app = App(
     root_agent=root_agent,
     name="app",
+    events_compaction_config=EventsCompactionConfig(
+        compaction_interval=20,
+        overlap_size=3,
+    ),
+    resumability_config=ResumabilityConfig(is_resumable=True),
 )

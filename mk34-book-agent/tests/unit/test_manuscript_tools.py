@@ -156,6 +156,41 @@ def test_chapter_stats_not_found(book) -> None:
     assert manuscript.chapter_stats(99) == {"status": "not_found", "chapter": 99}
 
 
+# --- write_scene_draft (TASK-008) -----------------------------------------------
+
+
+def test_write_scene_draft_creates_file_with_verdict_frontmatter(book) -> None:
+    result = manuscript.write_scene_draft(
+        chapter=5,
+        scene=1,
+        text="Unfertiger Text.",
+        verdict={"grade": "needs_revision", "issues": ["Registerbruch"]},
+    )
+
+    assert result["status"] == "success"
+    draft_path = book / "manuscript" / "kapitel_05.scene_1.draft.md"
+    assert draft_path.exists()
+    content = draft_path.read_text(encoding="utf-8")
+    assert "status: draft" in content
+    assert "grade: needs_revision" in content
+    assert "Registerbruch" in content
+    assert "Unfertiger Text." in content
+
+
+def test_write_scene_draft_never_touches_the_final_chapter_file(book) -> None:
+    manuscript.write_scene_draft(
+        chapter=5, scene=1, text="Entwurf.", verdict={"grade": "needs_revision"}
+    )
+    assert not (book / "manuscript" / "chapter_05.md").exists()
+
+
+def test_write_scene_draft_rejects_invalid_chapter(book) -> None:
+    result = manuscript.write_scene_draft(
+        chapter="../evil", scene=1, text="x", verdict={"grade": "needs_revision"}
+    )
+    assert result["status"] == "error"
+
+
 # --- Path traversal ---------------------------------------------------------------
 
 

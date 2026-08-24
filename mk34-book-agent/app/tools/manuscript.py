@@ -228,3 +228,45 @@ def chapter_stats(chapter: int) -> dict:
         "scene_count": result["scene_count"],
         "characters_present": _characters_mentioned(text),
     }
+
+
+def write_scene_draft(chapter: int, scene: int, text: str, verdict: dict) -> dict:
+    """Schreibt einen nicht abgeschlossenen Szenenentwurf mit dem letzten
+    Editor-Verdikt als Frontmatter -- markiert eine Szene NIE stillschweigend
+    als fertig (Persistenz-Konvention, TASK-008).
+
+    Legt `kapitel_NN.scene_M.draft.md` an (separater Namensraum von den
+    `chapter_NN.md`-Manuskriptdateien, die nur ueber `write_scene` entstehen).
+
+    Args:
+        chapter: 1-basierte Kapitelnummer.
+        scene: 1-basierte Szenennummer.
+        text: Der (moeglicherweise unfertige) Szenentext.
+        verdict: Das letzte Editor-Verdikt, z. B.
+            `{"grade": "needs_revision", "issues": [...]}`.
+
+    Returns:
+        Bei Erfolg `{"status": "success", "path": str}`. Bei ungueltiger
+        Kapitel-/Szenennummer: `{"status": "error", "message": str}`.
+    """
+    try:
+        chapter_num = _validate_number(
+            chapter, label="Kapitelnummer", maximum=_MAX_CHAPTER
+        )
+        scene_num = _validate_number(scene, label="Szenennummer", maximum=_MAX_SCENE)
+    except ManuscriptPathError as exc:
+        return {"status": "error", "message": str(exc)}
+
+    path = resolve_within(
+        manuscript_dir(), f"kapitel_{chapter_num:02d}.scene_{scene_num}.draft.md"
+    )
+    grade = verdict.get("grade", "unknown")
+    issues = verdict.get("issues") or []
+    frontmatter = ["---", "status: draft", f"grade: {grade}", "issues:"]
+    frontmatter += [f"  - {issue}" for issue in issues] if issues else ["  []"]
+    frontmatter.append("---")
+    content = "\n".join(frontmatter) + "\n\n" + text.strip() + "\n"
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(content, encoding="utf-8")
+    return {"status": "success", "path": str(path)}
