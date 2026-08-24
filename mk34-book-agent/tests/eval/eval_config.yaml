@@ -12,10 +12,16 @@
 # `safety` steht bewusst NICHT in metrics_to_run: widerspricht dem
 # unzensierten Szenen-Use-Case (Plan 3, siehe .claude/plans/README.md -> E10)
 # -- auch keine lokale Nachbildung.
+# TASK-010: tool_use_quality/trajectory_quality/eli5_quality ergaenzen die
+# TASK-003-Baseline um Trajektorie-/Tool-Metriken (Plan-2-Gate: "nimmt das
+# System den richtigen Weg", nicht nur "liefert der Agent eine gute Antwort").
 metrics_to_run:
   - task_success
   - character_voice_consistency
   - no_placeholder_text
+  - tool_use_quality
+  - trajectory_quality
+  - eli5_quality
 
 custom_metrics:
   - name: task_success
@@ -23,6 +29,15 @@ custom_metrics:
 
   - name: character_voice_consistency
     custom_function_file: character_voice_consistency_metric.py
+
+  - name: tool_use_quality
+    custom_function_file: tool_use_quality_metric.py
+
+  - name: trajectory_quality
+    custom_function_file: trajectory_quality_metric.py
+
+  - name: eli5_quality
+    custom_function_file: eli5_quality_metric.py
 
   # Deterministisch, kein LLM-Aufruf: prueft auf typische Platzhalter-Fehler.
   - name: no_placeholder_text
