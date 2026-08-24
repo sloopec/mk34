@@ -9,7 +9,6 @@ Abgeschlossen: 2026-08-24T17:30:00Z
 - **Drei neue Rubriken** (alle `tier: fast`) in `tests/eval/mk34_eval/rubrics/`:
   `tool_use_quality.md`, `trajectory_quality.md`, `eli5_quality.md` — rubrikbasiert statt starre
   Sequenz-Matches, wie von der Task-Datei gefordert.
-  gefordert.
 - **Drei neue Metrik-Wrapper** (`tests/eval/tool_use_quality_metric.py`,
   `trajectory_quality_metric.py`, `eli5_quality_metric.py`), die alle über `mk34_eval.judge`
   laufen — derselbe Call-Site wie `task_success`/`character_voice_consistency` aus TASK-003.
@@ -37,18 +36,27 @@ if missing:
 ```
 
 `eval generate` verlangt zwingend ein `content`-Feld auf **jedem** SSE-Event der `/run_sse`-Route.
-Der Orchestrator (seit TASK-007 mit `sub_agents=[plot_agent, editor_agent]`) emittiert am Ende
-jedes Turns jedoch ein reines Buchhaltungs-Event ohne `content` (nur `actions.endOfAgent: true`) —
-genau dieses Event-Muster wurde bereits im `-v`-Output des TASK-007-Live-Tests beobachtet
-(`{"actions": {..., "endOfAgent": true}, ...}` ohne `content`-Schlüssel). `agents-cli run`
-toleriert das (druckt einfach jedes Event-JSON), `eval generate`s SSE-Parser bricht dagegen hart
-ab.
+
+**Nachtrag (isolierte Root-Cause per Bisektion, siehe
+`docs/known-issues/agents-cli-eval-generate-missing-content.md`):** Die ursprüngliche Vermutung in
+diesem Walkthrough (Ursache liege an `sub_agents`/`endOfAgent`-Events des Orchestrators) war zu
+grob. Per minimaler, vom mk34-Projekt unabhängiger Reproduktion (reiner
+`agents-cli scaffold create --adk`-Scaffold plus **einzig** einem `before_agent_callback`) wurde
+die tatsächliche, hinreichende Bedingung isoliert: **jeder Agent mit `before_agent_callback`**
+lässt `eval generate` bereits am allerersten SSE-Event scheitern — einem reinen
+Buchhaltungs-Event, das ADK für die `stateDelta` des Callbacks emittiert
+(`{"author": "root_agent", "actions": {"stateDelta": {...}}, ...}`, ohne `content`-Feld). Weder
+`sub_agents` (mit/ohne `transfer_to_agent`), noch `AgentTool`, noch `output_schema` reproduzieren
+das Problem für sich allein — nur `before_agent_callback`. Der Orchestrator hat seit TASK-007
+`before_agent_callback=initialize_state` (TASK-002-Pattern) — das ist die tatsächliche Ursache,
+nicht die `sub_agents`-Struktur. Vollständiger Reproduktionsweg, Bisektions-Protokoll und
+rohes SSE-Event: siehe der oben verlinkte Report.
 
 **Verifikation, dass dies unabhängig vom Dataset-Inhalt ist:** `agents-cli eval generate` wurde
 zusätzlich erneut gegen das unveränderte `basic-dataset.json` ausgeführt (das in TASK-003 nach dem
 API-Key-Wechsel noch erfolgreich lief) — **identischer Fehler**, obwohl an diesem Dataset nichts
-geändert wurde. Das bestätigt: der Bruch liegt am Orchestrator-Event-Muster (seit TASK-007), nicht
-an `multi-agent.json`.
+geändert wurde. Das bestätigt: der Bruch liegt am `before_agent_callback` auf dem Orchestrator
+(seit TASK-007), nicht an `multi-agent.json`.
 
 **Ausgeschlossene Ursache:** testweise wurden `events_compaction_config`/`resumability_config`
 (TASK-008) aus `App(...)` entfernt und derselbe Lauf wiederholt — **derselbe Fehler**, also nicht
@@ -61,9 +69,17 @@ Drittanbieter-Code verifizierte Bugs, keiner davon im mk34-Projektcode behebbar,
 installierten `agents-cli`-Quellcode selbst zu patchen (ausdrücklich außerhalb des Scopes). Die
 Judge-Bibliothek selbst (`mk34_eval.judge`) ist vollständig funktionsfähig und unit-getestet.
 
+**Vollständiger, einreichfertiger Bug-Report:**
+`docs/known-issues/agents-cli-eval-generate-missing-content.md` — mit minimaler, vom
+mk34-Projekt unabhängiger Reproduktion, Bisektions-Protokoll, rohem SSE-Event und
+Umgebungsangaben. **Nicht öffentlich eingereicht** (kein GitHub-Issue) — das bleibt dem User
+vorbehalten.
+
 **Auswirkung auf den Plan:** Jeder weitere Task mit einem `agents-cli eval run/generate/grade`-
-Gate (TASK-011: `continuity.json`, 0 False Negatives) ist auf dieselbe Weise blockiert. Dieser
-Befund wird dem User als eigener Blocker-Punkt gemeldet (siehe Chat-Antwort nach diesem Task).
+Gate (TASK-011: `continuity.json`, 0 False Negatives; vorausschauend auch alle Eval-Gates in
+Plan 3/4) ist auf dieselbe Weise blockiert, solange der Orchestrator `before_agent_callback`
+benötigt (was ADK-seitig empfohlenes Pattern gegen `KeyError`s ist, siehe TASK-002/007). Dieser
+Befund wurde dem User bereits gemeldet.
 
 ## Geänderte Dateien
 
