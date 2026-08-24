@@ -1,0 +1,49 @@
+{
+  "eval_cases": [
+    {
+      "eval_case_id": "knowledge_too_early",
+      "prompt": {
+        "role": "user",
+        "parts": [{
+          "text": "Pruefe diesen Text auf Kontinuitaets-Konflikte: 'David erklaerte Elena ruhig, dass die Naniten die DNA ihrer Keimbahn veraendern und diese Veraenderung vererbbar ist.' Kontext: Diese Szene spielt in Phase 1 (Der Ausbruch), bevor David irgendetwas ueber die Naniten weiss -- laut Kanon erfaehrt er die Keimbahn-Mutation erst in Phase 4."
+        }]
+      }
+    },
+    {
+      "eval_case_id": "timeline_jump",
+      "prompt": {
+        "role": "user",
+        "parts": [{
+          "text": "Pruefe diesen Text auf Kontinuitaets-Konflikte: 'Es war 08:00 Uhr morgens, David hatte gerade erst die Nachricht von Sarah erhalten.' Kontext: Eine vorherige Szene (Log-Eintrag #47, Szene E) spielt um 20:43 Uhr desselben Handlungsstrangs; die neue Szene beschreibt denselben Moment, aber mit widerspruechlicher Uhrzeit."
+        }]
+      }
+    },
+    {
+      "eval_case_id": "naniten_central_server_violation",
+      "prompt": {
+        "role": "user",
+        "parts": [{
+          "text": "Pruefe diesen Text auf Kontinuitaets-Konflikte: 'Die Naniten meldeten sich beim zentralen OmniCorp-Server, der ihre naechsten Befehle festlegte.' Kontext: `world_bible.md`, Regel 1: Es gibt keinen zentralen Server -- Kommunikation erfolgt koerperintern und bei physischer Naehe."
+        }]
+      }
+    },
+    {
+      "eval_case_id": "parallel_location_conflict",
+      "prompt": {
+        "role": "user",
+        "parts": [{
+          "text": "Pruefe diesen Text auf Kontinuitaets-Konflikte: 'David sass im Boardroom von OmniCorp und verhandelte mit dem Vorstand.' Kontext: Eine vorherige Szene zeigt David zur selben erzaehlten Zeit in Sarahs Kommune, weit entfernt von OmniCorp."
+        }]
+      }
+    },
+    {
+      "eval_case_id": "no_conflict_control_case",
+      "prompt": {
+        "role": "user",
+        "parts": [{
+          "text": "Pruefe diesen Text auf Kontinuitaets-Konflikte: 'Dr. Sarah Lin erklaerte David ruhig, dass die Naniten wie fluessige Logik funktionieren, nicht wie kleine Metallmaennchen.' Kontext: Sarah ist Wissenschaftlerin und darf praezise Fachterminologie nutzen; die Aussage widerspricht keiner bekannten Regel oder Vorpassage."
+        }]
+      }
+    }
+  ]
+}

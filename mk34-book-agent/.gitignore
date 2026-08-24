@@ -194,6 +194,10 @@ Thumbs.db
 # nur Manuskript/Kanon gehoeren ins Repo, nicht die Gespraechshistorie.
 data/
 
+# mk34: agents-cli eval artifacts (Traces/Grade-Results) sind reproduzierbar
+# generierte Laufzeitdaten, kein Quelltext -- nicht versionieren.
+artifacts/
+
 # Agent CLI specific
 .persist_vector_store
 tests/load_test/.results/*.html

@@ -84,8 +84,8 @@ deprecated = "ignore"
 # project, per team convention) that happen to match codespell's English
 # misspelling dictionary (ist->is, als->also, oder->order, modell->model,
 # lokale/lokales->locale/locales, explizit->explicit).
-ignore-words-list = "rouge,ist,als,oder,modell,lokale,lokales,explizit,hart"
-skip = "./locust_env/*,uv.lock,.venv,./frontend,**/package-lock.json"
+ignore-words-list = "rouge,ist,als,oder,modell,lokale,lokales,explizit,hart,szene,sie,alle,unter,lokal,probleme,stil,modul,deine,titel,objekt,vor,offen,passt,separater,offener,aktive,extrem,absolut,referenz,relevante,relativ,feld,ende,tage"
+skip = "./locust_env/*,uv.lock,.venv,./frontend,**/package-lock.json,./artifacts/*"
 
 
 [build-system]
