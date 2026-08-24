@@ -37,6 +37,9 @@ from google.adk.tools import ToolContext
 
 from app.tools._paths import store_dir
 
+_MAX_TENSION_LEVEL = 10
+_MIN_TENSION_LEVEL = 1
+
 
 def _read_json(path) -> dict:
     if not path.exists():
@@ -159,3 +162,85 @@ def load_scene_context(chapter: int, scene: int, tool_context: ToolContext) -> d
     # (as in app/pipelines/writing.py, TASK-008) or called ad hoc.
     tool_context.state["scene_context"] = result
     return result
+
+
+def read_chapter_summaries() -> dict:
+    """Liest eine Kurz-Zusammenfassung (erste ~300 Zeichen) jedes vorhandenen
+    Kapitels im Manuskript.
+
+    Returns:
+        `{"status": "success", "summaries": [{"chapter": int, "summary": str}, ...]}`,
+        aufsteigend nach Kapitelnummer sortiert. Ist noch kein Kapitel
+        geschrieben, ist `summaries` eine leere Liste.
+    """
+    # Local import to avoid a module-level cycle (manuscript.py doesn't
+    # import context_loader, but keeps the two tool modules independently
+    # importable for callers that only need one of them).
+    from app.tools.manuscript import list_chapters, read_manuscript
+
+    summaries = []
+    for entry in list_chapters().get("chapters", []):
+        chapter_num = entry["chapter"]
+        result = read_manuscript(chapter_num)
+        text = result.get("text", "") if result.get("status") == "success" else ""
+        snippet = " ".join(text.split())[:300]
+        summaries.append({"chapter": chapter_num, "summary": snippet})
+    return {"status": "success", "summaries": summaries}
+
+
+def update_plot_outline(
+    chapter: int,
+    scene: int,
+    pov_character: str,
+    location: str,
+    beat: str,
+    turning_point: bool,
+    tension_level: int,
+    characters_present: list[str],
+) -> dict:
+    """Schreibt oder aktualisiert einen Szenen-Beat in `plot_outline.json`.
+
+    Idempotent: ein bereits vorhandener Beat fuer dasselbe (chapter, scene)
+    wird ersetzt, alle anderen Beats und die bestehenden `phases` bleiben
+    unveraendert.
+
+    Args:
+        chapter: 1-basierte Kapitelnummer.
+        scene: 1-basierte Szenennummer innerhalb des Kapitels.
+        pov_character: Name der Point-of-View-Figur.
+        location: Schauplatz der Szene.
+        beat: Kurzbeschreibung, was in der Szene passiert.
+        turning_point: Ist dieser Beat ein Wendepunkt?
+        tension_level: Spannungslevel 1-10 (wird auf diesen Bereich geklemmt).
+        characters_present: Namen aller anwesenden Figuren.
+
+    Returns:
+        `{"status": "success", "chapter": int, "scene": int}`.
+    """
+    path = store_dir() / "plot_outline.json"
+    data = _read_json(path)
+    beats = data.setdefault("scene_beats", [])
+    new_beat = {
+        "chapter": chapter,
+        "scene": scene,
+        "pov_character": pov_character,
+        "location": location,
+        "beat": beat,
+        "turning_point": turning_point,
+        "tension_level": max(
+            _MIN_TENSION_LEVEL, min(_MAX_TENSION_LEVEL, tension_level)
+        ),
+        "characters_present": characters_present,
+    }
+    for index, existing in enumerate(beats):
+        if existing.get("chapter") == chapter and existing.get("scene") == scene:
+            beats[index] = new_beat
+            break
+    else:
+        beats.append(new_beat)
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+    return {"status": "success", "chapter": chapter, "scene": scene}
