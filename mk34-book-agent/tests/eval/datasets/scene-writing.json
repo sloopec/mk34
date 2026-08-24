@@ -1,0 +1,49 @@
+{
+  "eval_cases": [
+    {
+      "eval_case_id": "scene_a_vanilla_pitch",
+      "prompt": {
+        "role": "user",
+        "parts": [{
+          "text": "Schreibe die Szene 'Der Vanilla-Pitch': OmniCorp-Zentrale, 40. Stock, Waende aus Glas. Voss aktiviert die AR-Funktion der smarten Kontaktlinsen aller Teilnehmer -- der Konferenzraum loest sich auf und wird zur Sicht eines 'optimierten' Kunden im Supermarkt. Normale Produkte erscheinen grau, OmniCorp-Produkte haben einen warmen Schimmer (Halo-Effekt), der Puls des Kunden sinkt messbar beim Anblick. POV-Figur: Dr. Elias Voss, praesentiert dem skeptischen Marketing-Chef Ronan. Halte das Sprachregister strikt ein: Voss spricht praezise wissenschaftlich und nutzt bewusst Alltagsmetaphern gegenueber Ronan, sagt aber nie 'Nanobots'; Ronan nutzt Business-/Marketing-Jargon (KPIs, Marktdurchdringung), keine technischen Begriffe. Baue die Kern-Aussage ein: 'Wir verkaufen ihm nicht das Produkt, Ronan. Wir verkaufen ihm das biochemische Gefuehl, dass er ein besserer Vater ist, wenn er genau diese Milch kauft.'"
+        }]
+      }
+    },
+    {
+      "eval_case_id": "scene_b_kaltes_schlafzimmer",
+      "prompt": {
+        "role": "user",
+        "parts": [{
+          "text": "Schreibe die Szene 'Das kalte Schlafzimmer': nachts, das Ehebett, nur das Licht der Strassenlaterne faellt herein. Elena initiiert Sex, aber ihre Bewegungen sind zu praezise, zu rhythmisch, voellig lautlos -- es fehlt das leichte Zittern, die Waerme, das menschliche Chaos. David blickt ihr in die Augen: die Pupillen reagieren nicht auf das Licht, sie starrt durch ihn hindurch. Er fuehlt sich, als wuerde er mit einer Maschine schlafen, und bricht ab. Elena zeigt keine Enttaeuschung, keine Wut -- ihr Gesichtsausdruck 'resettet' sich neutral, sie dreht sich um und schlaeft sofort ein (Energiesparmodus). POV-Figur: David (Laie, sagt nie 'Naniten', nur 'Nanobots' falls ueberhaupt technisch). Zeig Davids Horror ueber Koerperreaktion und Beobachtung, benenne ihn nicht direkt als 'Horror' oder 'Angst'."
+        }]
+      }
+    },
+    {
+      "eval_case_id": "scene_c_die_diagnose",
+      "prompt": {
+        "role": "user",
+        "parts": [{
+          "text": "Schreibe die Szene 'Die Diagnose': das abgedunkelte Buero von Dr. Aris, Monitore leuchten blau. Aris zeigt David das Blutbild seiner Frau in extremer Vergroesserung -- die roten Blutkoerperchen werden nicht angegriffen, sie werden geritten: winzige kristalline Strukturen sitzen auf ihnen und nutzen den Blutstrom als Taxi. POV-Figur: David. Baue Aris' Dialogzeile ein (sinngemaess): 'Siehst du das Blinken in den Abstaenden? Das ist keine Lichtreflexion, David. Das ist Morsecode auf molekularer Ebene. Dein Blut hat jetzt W-LAN.' Aris spricht wissenschaftlich-praezise, aber didaktisch fuer Laien aufbereitet (nie Fachjargon ohne Uebersetzung), David bleibt im Laien-Register ('Nanobots', nie 'Naniten')."
+        }]
+      }
+    },
+    {
+      "eval_case_id": "scene_d_analoges_abendessen",
+      "prompt": {
+        "role": "user",
+        "parts": [{
+          "text": "Schreibe die Szene 'Das analoge Abendessen': die Holzhuette in Sarahs Kommune, Kerzenlicht, unebener Holztisch. Sarah serviert Eintopf, leicht angebrannt, das Gemuese krumm geschnitten -- nichts ist perfekt. David isst, schmeckt das Angebrannte, es treibt ihm Traenen in die Augen: der erste echte, unoptimierte Reiz seit Wochen. Sarah legt ihre Hand auf seine -- rau, warm, zittert leicht. POV-Figur: David. Zeige ueber Sinneswahrnehmung und Koerperreaktion, dass ihm klar wird, was 'LifeLink' der Menschheit genommen hat -- ohne diesen Gedanken direkt auszusprechen oder zu erklaeren. Sarah bleibt im wissenschaftlichen Register, David im Laien-Register."
+        }]
+      }
+    },
+    {
+      "eval_case_id": "scene_e_protokoll_der_sehnsucht",
+      "prompt": {
+        "role": "user",
+        "parts": [{
+          "text": "Schreibe die Szene 'Das Protokoll der Sehnsucht' im Stil 'klinische Distanz trifft poetische Verzweiflung': ein Laborbericht, der zur Liebeserklaerung wird. Setting: Wohnung von Markus (34, Entwickler, frueher LifeLink-Nutzer), er steht vor der Tuer seiner Nachbarin Sophie um 20:43 Uhr. Wechsle zwischen zwei klar getrennten Textebenen: (1) knappe, klinische KI-Analyse-Einschuebe (biometrische Werte wie Oxytocin/Dopamin/Noradrenalin, kuehl formuliert, als Blockzitat/Log-Format) und (2) Markus' introspektiv-verzweifelte Ich-nahe Perspektive plus Sophies alltagssprachlich-neckende Dialogzeilen. Markus kennt korrekt 'Naniten' (hat recherchiert), nie 'Nanobots'. Die Szene endet damit, dass Markus' rationaler Widerstand von der Chemie ueberwaeltigt wird, waehrend die KI-Analyse das als vollen Erfolg protokolliert."
+        }]
+      }
+    }
+  ]
+}

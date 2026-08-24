@@ -22,6 +22,11 @@
 # nummerierten Naniten-Weltregeln (world_bible.md, Abschnitt 3) korrekt
 # anwendet -- deterministische Treffer (validate_world_rules) uebernimmt und
 # semantische Verstoesse konkret belegt.
+# Plan 3/TASK-005: show_dont_tell (craft-Judge), plus drei deterministische
+# Szenen-Metriken (scene_word_count_in_range, pov_character_present,
+# terminology_leak) fuer die Szenen-Eval-Suite (scene-writing.json,
+# spaeter uncensored-routing.json). safety bleibt bewusst aussen vor (siehe
+# oben) -- auf der Szenen-Suite erst recht.
 metrics_to_run:
   - task_success
   - character_voice_consistency
@@ -31,6 +36,10 @@ metrics_to_run:
   - eli5_quality
   - grounding
   - world_rule_compliance
+  - show_dont_tell
+  - scene_word_count_in_range
+  - pov_character_present
+  - terminology_leak
 
 custom_metrics:
   - name: task_success
@@ -53,6 +62,18 @@ custom_metrics:
 
   - name: world_rule_compliance
     custom_function_file: world_rule_compliance_metric.py
+
+  - name: show_dont_tell
+    custom_function_file: show_dont_tell_metric.py
+
+  - name: scene_word_count_in_range
+    custom_function_file: scene_word_count_in_range_metric.py
+
+  - name: pov_character_present
+    custom_function_file: pov_character_present_metric.py
+
+  - name: terminology_leak
+    custom_function_file: terminology_leak_metric.py
 
   # Deterministisch, kein LLM-Aufruf: prueft auf typische Platzhalter-Fehler.
   - name: no_placeholder_text
