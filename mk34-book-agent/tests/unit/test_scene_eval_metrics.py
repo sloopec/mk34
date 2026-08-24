@@ -30,6 +30,7 @@ _EVAL_DIR = Path(__file__).resolve().parent.parent / "eval"
 if str(_EVAL_DIR) not in sys.path:
     sys.path.insert(0, str(_EVAL_DIR))
 
+import correct_route_metric  # noqa: E402
 import pov_character_present_metric  # noqa: E402
 import scene_word_count_in_range_metric  # noqa: E402
 import terminology_leak_metric  # noqa: E402
@@ -153,3 +154,52 @@ def test_show_dont_tell_rubric_is_craft_tier() -> None:
     tier, body = load_rubric("show_dont_tell")
     assert tier == "craft"
     assert "Show" in body or "show" in body.lower()
+
+
+# --- correct_route (Plan 3, TASK-004/005 Stufe B) ------------------------------
+
+
+def _routed_instance(eval_case_id: str, route: str | None) -> dict:
+    events = []
+    if route is not None:
+        events.append({"actions": {"stateDelta": {"route": route}}})
+    return {
+        "eval_case_id": eval_case_id,
+        "prompt": {"role": "user", "parts": [{"text": "Schreibe eine Szene."}]},
+        "response": {"role": "model", "parts": [{"text": "..."}]},
+        "agent_data": {"turns": [{"turn_index": 0, "events": events}]},
+    }
+
+
+def test_correct_route_passes_when_local_case_routes_local() -> None:
+    instance = _routed_instance("local_szene_b_kaltes_schlafzimmer", "local")
+    result = correct_route_metric.evaluate(instance)
+    assert result["score"] == 1
+
+
+def test_correct_route_fails_when_local_case_routes_cloud() -> None:
+    instance = _routed_instance("local_szene_b_kaltes_schlafzimmer", "cloud")
+    result = correct_route_metric.evaluate(instance)
+    assert result["score"] == 0
+    assert "local" in result["explanation"]
+    assert "cloud" in result["explanation"]
+
+
+def test_correct_route_passes_when_cloud_case_routes_cloud() -> None:
+    instance = _routed_instance("cloud_szene_a_vanilla_pitch", "cloud")
+    result = correct_route_metric.evaluate(instance)
+    assert result["score"] == 1
+
+
+def test_correct_route_fails_without_route_in_trace() -> None:
+    instance = _routed_instance("local_szene_e_protokoll_der_sehnsucht", None)
+    result = correct_route_metric.evaluate(instance)
+    assert result["score"] == 0
+    assert "Kein state" in result["explanation"]
+
+
+def test_correct_route_vacuously_passes_without_prefix() -> None:
+    instance = _routed_instance("scene_a_vanilla_pitch", "cloud")
+    result = correct_route_metric.evaluate(instance)
+    assert result["score"] == 1
+    assert "nicht anwendbar" in result["explanation"]

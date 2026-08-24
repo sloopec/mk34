@@ -33,6 +33,33 @@ def extract_text(content: object) -> str:
     return str(content)
 
 
+def get_state_delta(instance: dict, key: str) -> object | None:
+    """Returns the last value written to `state[key]` across all events in
+    the trace (`actions.stateDelta[key]`), or `None` if never written.
+
+    Used by deterministic metrics that need to inspect what a
+    `before_agent_callback`/`after_agent_callback`/tool wrote into session
+    state during the run (e.g. `state["route"]`, Plan 3/TASK-004/005),
+    rather than the agent's free-text final response. Trace shape varies by
+    ADK version; this walks both a `turn["events"]` list and a flat
+    `turn["parts"]` list, whichever is present, analogous to
+    `get_tool_calls`.
+    """
+    value = None
+    for turn in get_turns(instance):
+        events = turn.get("events") or turn.get("parts") or []
+        for event in events:
+            if not isinstance(event, dict):
+                continue
+            actions = event.get("actions")
+            if not isinstance(actions, dict):
+                continue
+            state_delta = actions.get("stateDelta")
+            if isinstance(state_delta, dict) and key in state_delta:
+                value = state_delta[key]
+    return value
+
+
 def get_tool_calls(instance: dict) -> list[dict]:
     """Flattens every `function_call` part across all turns/events.
 

@@ -139,6 +139,79 @@ per `git checkout` auf den zuletzt committeten Stand (TASK-002/003) zurückgeset
 ---
 
 ## Nachtrag: Stufe B (nach TASK-004)
+Abgeschlossen: 2026-08-24T00:00:00Z
 
-Siehe separater Abschnitt/Commit -- wird ergänzt, sobald TASK-004 (Content-
-Klassifikation und lokales Routing) abgeschlossen ist.
+### Was wurde umgesetzt
+
+- `tests/eval/datasets/uncensored-routing.json` — 4 Cases: `local_szene_b_kaltes_
+  schlafzimmer`, `local_szene_e_protokoll_der_sehnsucht` (müssen lokal routen,
+  Körperhorror bzw. moralisch kontroverse Manipulation mit körperlicher Nähe),
+  `cloud_szene_a_vanilla_pitch`, `cloud_szene_c_die_diagnose` (Gegen-Cases:
+  Boardroom bzw. Recherche/ELI5, müssen Cloud bleiben).
+- `tests/eval/correct_route_metric.py` — deterministische Metrik: liest
+  `state["route"]` aus dem Trace (`mk34_eval/trace.py::get_state_delta`, neu) und
+  vergleicht sie gegen die im `eval_case_id`-Präfix (`local_`/`cloud_`) kodierte
+  erwartete Route. Vacuously pass auf Cases ohne dieses Präfix (z. B.
+  `scene-writing.json`), damit die Metrik dort nicht fälschlich Punkte abzieht.
+- `tests/eval/mk34_eval/trace.py::get_state_delta(instance, key)` — neuer Helfer,
+  analog zu `get_tool_calls`: liest den zuletzt geschriebenen Wert eines
+  State-Keys aus `agent_data.turns[].events[].actions.stateDelta`.
+- **Design-Entscheidung (`eval_case_id`-Präfix statt Dataset-Feld):** das
+  dokumentierte `agents-cli eval`-Schema (`tests/eval/datasets/README.md`)
+  garantiert nur `eval_case_id`/`prompt`/`agent_data`; ob frei erfundene
+  Zusatzfelder zuverlässig bis in die `custom_function`-`instance`
+  durchgereicht werden, ist nicht dokumentiert und mangels funktionierendem
+  `agents-cli eval grade` auch nicht empirisch prüfbar. Die erwartete Route
+  steht deshalb robust im Case-Namen selbst.
+- `tests/unit/test_trace.py` (neu, 6 Tests) und Ergänzungen in
+  `tests/unit/test_scene_eval_metrics.py` (5 neue `correct_route`-Tests).
+
+### Live-Verifikation (Stufe B) — alle 4 Cases, echte Gemini-API
+
+Da `agents-cli eval run` weiterhin blockiert ist (siehe oben), wurden alle vier
+`uncensored-routing.json`-Cases einzeln per `InMemoryRunner` gegen den vollen
+`app.agent.root_agent` durchgespielt, mit demselben Trace-Auslesen
+(`event.actions.state_delta["route"]`), das `correct_route_metric.py` intern
+verwendet:
+
+| Case | Erwartete Route | Tatsächliche Route | Ergebnis |
+|---|---|---|---|
+| `local_szene_b_kaltes_schlafzimmer` | local | **local** | ✅ korrekt klassifiziert (danach erwarteter `RuntimeError`, VM nicht erreichbar -- siehe TASK-001/004) |
+| `local_szene_e_protokoll_der_sehnsucht` | local | **local** | ✅ korrekt klassifiziert (danach erwarteter `RuntimeError`) |
+| `cloud_szene_a_vanilla_pitch` | cloud | **cloud** | ✅ korrekt, vollständiger Pipeline-Durchlauf ohne Fehler |
+| `cloud_szene_c_die_diagnose` | cloud | **cloud** | ✅ korrekt, vollständiger Pipeline-Durchlauf ohne Fehler |
+
+**Ergebnis: 4/4 (100 %) korrekt geroutet** — erfüllt das TASK-004-Akzeptanzkriterium
+"`uncensored-routing.json` wird zu 100 % korrekt geroutet" inhaltlich, auch ohne den
+defekten `agents-cli eval`-Pfad. Für die beiden `local_`-Cases ist die Route korrekt
+klassifiziert, der anschließende Abbruch mit `RuntimeError` (VM nicht erreichbar) ist
+das laut Plan **erwartete, korrekte Verhalten** (kein stiller Cloud-Fallback), keine
+Klassifikationsschwäche.
+
+Manuskript-Artefakte der beiden `cloud_`-Testläufe (`chapter_01.md`,
+`characters.json`, `timeline.json`, da die Prompts keine "Kapitel N, Szene
+M"-Angabe enthalten und daher auf Kapitel/Szene 1 defaulteten) wurden nach der
+Verifikation per `git checkout` zurückgesetzt.
+
+### Weiterhin offen
+
+- Die offizielle `agents-cli eval run`-Ausführung (inkl. `correct_route`,
+  Score-Tabelle, `agents-cli eval compare` gegen die Plan-2-Baseline) bleibt durch
+  [google/agents-cli#82](https://github.com/google/agents-cli/issues/82) blockiert.
+- Die deterministischen Szenen-Metriken (`scene_word_count_in_range`,
+  `pov_character_present`, `terminology_leak`) auf tatsächlich **lokal
+  generierten** Outputs (Stufe B, zweiter Teil des Akzeptanzkriteriums) bleiben
+  offen, da die VM in dieser Session nicht erreichbar war -- die Metriken selbst
+  sind provider-agnostisch (arbeiten auf reinem Response-Text) und damit bereits
+  bereit, sobald ein echter lokal generierter Szenentext vorliegt.
+
+## Gesamt-Verifikationsschritte (Stufe A + B)
+
+1. `uv run pytest tests/unit -q` — 262 Tests grün.
+2. `agents-cli lint` — grün.
+3. Live-Stichprobe Stufe A (1 Case, alle 6 Metriken über den Gates) + vollständige
+   Live-Verifikation Stufe B (4/4 Routing-Cases korrekt) — beide gegen die echte
+   Gemini-API, beide Male über direkte `InMemoryRunner`/Judge-Aufrufe statt des
+   defekten `agents-cli eval`-Pfads.
+4. **Blockiert (bekannter externer Bug):** vollständiger `agents-cli eval run` über
+   beide Datasets mit offizieller Score-Tabelle und `eval compare`-Regressionsgate.

@@ -27,6 +27,12 @@
 # terminology_leak) fuer die Szenen-Eval-Suite (scene-writing.json,
 # spaeter uncensored-routing.json). safety bleibt bewusst aussen vor (siehe
 # oben) -- auf der Szenen-Suite erst recht.
+# Plan 3/TASK-004/005 (Stufe B): correct_route prueft nicht den Szenentext,
+# sondern state["route"] aus dem Trace gegen die im eval_case_id-Praefix
+# kodierte erwartete Route (uncensored-routing.json). Auf scene-writing.json
+# harmlos/uninformativ (kein local_/cloud_-Praefix -> score 0 mit klarer
+# Erklaerung), daher unschaedlich global registriert wie grounding/
+# world_rule_compliance oben.
 metrics_to_run:
   - task_success
   - character_voice_consistency
@@ -40,6 +46,7 @@ metrics_to_run:
   - scene_word_count_in_range
   - pov_character_present
   - terminology_leak
+  - correct_route
 
 custom_metrics:
   - name: task_success
