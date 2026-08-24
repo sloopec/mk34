@@ -270,3 +270,15 @@ def write_scene_draft(chapter: int, scene: int, text: str, verdict: dict) -> dic
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(content, encoding="utf-8")
     return {"status": "success", "path": str(path)}
+
+
+def parse_scene_markers(text: str) -> dict[int, str]:
+    """Public wrapper around `_parse_scenes` for cross-module reuse (e.g.
+    `app/retrieval/index.py`, TASK-011), so callers don't need to import a
+    private, underscore-prefixed name."""
+    return _parse_scenes(text)
+
+
+def characters_mentioned(text: str) -> list[str]:
+    """Public wrapper around `_characters_mentioned` for cross-module reuse."""
+    return _characters_mentioned(text)

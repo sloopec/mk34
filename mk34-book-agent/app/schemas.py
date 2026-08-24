@@ -52,6 +52,33 @@ class SceneBeatList(BaseModel):
     )
 
 
+class ContinuityConflict(BaseModel):
+    """Ein einzelner Kontinuitaets-Konflikt (TASK-011)."""
+
+    type: str = Field(
+        description=(
+            "Art des Konflikts, z. B. 'Wissen zu frueh', 'Zeitsprung', "
+            "'Parallelitaets-Konflikt', 'Regelverstoss'."
+        )
+    )
+    evidence: str = Field(description="Die widerspruechliche Aussage im neuen Text.")
+    reference: str = Field(
+        description="Referenz auf die widersprechende Vorpassage, z. B. 'Kapitel 3, Szene 1'."
+    )
+    severity: Literal["low", "medium", "high"] = Field(
+        description="Schweregrad des Konflikts."
+    )
+
+
+class ContinuityReport(BaseModel):
+    """Strukturiertes Ergebnis des Continuity Agent (TASK-011)."""
+
+    conflicts: list[ContinuityConflict] = Field(
+        default_factory=list,
+        description="Gefundene Kontinuitaets-Konflikte; leer, wenn keine gefunden wurden.",
+    )
+
+
 class EditorVerdict(BaseModel):
     """Strukturiertes Lektorats-Verdikt des Editor Agent (TASK-006)."""
 

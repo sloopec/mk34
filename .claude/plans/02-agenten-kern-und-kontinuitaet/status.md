@@ -13,7 +13,7 @@ Aktualisiert: 2026-08-17T00:00:00Z
 | TASK-008 | Schreib-Pipeline-Gerüst (ohne Szenen-Schritt)          | ✅ erledigt     | 2026-08-24T15:15:00Z | 2026-08-24T16:00:00Z |
 | TASK-009 | Smoke-Test und Lint                                    | ✅ erledigt     | 2026-08-24T16:10:00Z | 2026-08-24T16:30:00Z |
 | TASK-010 | Eval für Multi-Agent-Trajektorie                       | ✅ erledigt (Live-Score blockiert durch agents-cli-Bug, siehe Walkthrough) | 2026-08-24T16:45:00Z | 2026-08-24T17:30:00Z |
-| TASK-011 | Continuity Agent mit Retrieval                         | ⏳ ausstehend   | —         | —             |
+| TASK-011 | Continuity Agent mit Retrieval                         | ✅ erledigt (Live-Verifikation durch transientes Netzwerkproblem blockiert, Eval-Ausführung durch agents-cli-Bug blockiert, siehe Walkthrough) | 2026-08-24T18:00:00Z | 2026-08-24T19:15:00Z |
 | TASK-012 | Timeline- und Character-State-Tracking                 | ⏳ ausstehend   | —         | —             |
 | TASK-013 | World-Rules-Engine                                     | ⏳ ausstehend   | —         | —             |
 

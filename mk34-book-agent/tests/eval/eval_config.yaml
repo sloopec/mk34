@@ -15,6 +15,9 @@
 # TASK-010: tool_use_quality/trajectory_quality/eli5_quality ergaenzen die
 # TASK-003-Baseline um Trajektorie-/Tool-Metriken (Plan-2-Gate: "nimmt das
 # System den richtigen Weg", nicht nur "liefert der Agent eine gute Antwort").
+# TASK-011: grounding prueft, ob der Continuity Agent Konflikte belegt statt
+# frei erfindet (nur relevant fuer continuity.json-Laeufe, aber unschaedlich
+# und billig auf anderen Datasets).
 metrics_to_run:
   - task_success
   - character_voice_consistency
@@ -22,6 +25,7 @@ metrics_to_run:
   - tool_use_quality
   - trajectory_quality
   - eli5_quality
+  - grounding
 
 custom_metrics:
   - name: task_success
@@ -38,6 +42,9 @@ custom_metrics:
 
   - name: eli5_quality
     custom_function_file: eli5_quality_metric.py
+
+  - name: grounding
+    custom_function_file: grounding_metric.py
 
   # Deterministisch, kein LLM-Aufruf: prueft auf typische Platzhalter-Fehler.
   - name: no_placeholder_text

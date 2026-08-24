@@ -74,6 +74,9 @@ class Settings(BaseSettings):
     mk34_book_slug: str = "life_link"
     mk34_book_root: str = "books/life_link"
 
+    # --- Lokaler Retrieval-Index (Entscheidung E2, TASK-011) ---------------
+    mk34_index_path: str = "books/life_link/.index/manuscript.db"
+
     def model_for_tier(self, tier: str) -> str:
         """Resolves a tier name (`heavy`/`fast`/`lite`/`scene`) to a model ID."""
         field_name = f"mk34_model_{tier}"
