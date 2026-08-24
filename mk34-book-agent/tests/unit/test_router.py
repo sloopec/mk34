@@ -140,9 +140,20 @@ def test_anthropic_provider_returns_lite_llm_instance_without_api_call() -> None
     assert result.model == "anthropic/claude-sonnet-5"
 
 
-def test_local_provider_raises_not_implemented_with_plan_reference() -> None:
-    settings = _settings(mk34_model_scene="local")
-    with pytest.raises(NotImplementedError, match="03-szenen-und-lokales-llm"):
+def test_local_provider_no_longer_raises_not_implemented() -> None:
+    """Plan 3/TASK-001 bindet die lokale Route an -- siehe test_router_local.py
+    fuer die detaillierten Verhaltenstests (Health-Check, Fallback-Verbot,
+    Rollen-Guard). Dieser Test fixiert nur, dass der alte Plan-1-Platzhalter
+    (`NotImplementedError`) verschwunden ist."""
+    from app.models.router import local_model_available
+
+    settings = _settings(
+        mk34_model_scene="local", mk34_local_health_url="http://127.0.0.1:1/health"
+    )
+    # Ohne laufende VM (unerreichbare Health-URL) und ohne Cloud-Fallback
+    # bricht der Aufruf mit RuntimeError ab, nicht mit NotImplementedError.
+    assert local_model_available(settings) is False
+    with pytest.raises(RuntimeError, match="Lokales Modell nicht erreichbar"):
         model_for("scene", settings=settings)
 
 

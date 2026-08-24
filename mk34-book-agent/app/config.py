@@ -66,6 +66,18 @@ class Settings(BaseSettings):
     gemini_api_key: str | None = None
     anthropic_api_key: str | None = None
 
+    # --- Lokales unzensiertes LLM (llama.cpp, Entscheidung/Plan 3 TASK-001) ---
+    # Ausschliesslich fuer die Rolle "scene" vorgesehen (siehe app/models/router.py).
+    # Infrastruktur: docs/LOCAL_MODEL_VM_SETUP.md (verschluesselte Parallels-VM,
+    # SSH-Tunnel auf localhost:8080, OpenAI-kompatible API via llama-server).
+    mk34_local_model: str = "openai/supergemma4"
+    mk34_local_api_base: str = "http://localhost:8080/v1"
+    mk34_local_api_key: str = "not-needed"
+    mk34_local_health_url: str = "http://localhost:8080/health"
+    # Kein stiller Cloud-Fallback bei nicht erreichbarer VM -- nur bei explizitem
+    # Opt-in (mit Warnung im Router).
+    mk34_allow_cloud_fallback: bool = False
+
     # --- Eval-Judges (Entscheidung E4, ab Plan 2/TASK-003) ---------------
     mk34_judge_model_fast: str = "gemini-3.7-flash"
     mk34_judge_model_craft: str = "gemini-3.1-pro-preview"
