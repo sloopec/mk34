@@ -7,7 +7,7 @@ Aktualisiert: 2026-08-17T00:00:00Z
 | TASK-002 | Kontext-Loader-Tools                                   | ✅ erledigt     | 2026-08-19T01:15:00Z | 2026-08-19T01:45:00Z |
 | TASK-003 | Eval-Grundgerüst und Judge-Bibliothek                  | ✅ erledigt (`eval grade`-Score blockiert durch agents-cli-Bug, siehe Walkthrough) | 2026-08-19T02:00:00Z | 2026-08-24T12:15:00Z |
 | TASK-004 | Plot Agent                                             | ✅ erledigt     | 2026-08-24T12:30:00Z | 2026-08-24T13:00:00Z |
-| TASK-005 | Character Agent und Figuren-Tools                      | ⏳ ausstehend   | —         | —             |
+| TASK-005 | Character Agent und Figuren-Tools                      | ✅ erledigt     | 2026-08-24T13:10:00Z | 2026-08-24T13:30:00Z |
 | TASK-006 | Editor Agent (Lektorat)                                | ⏳ ausstehend   | —         | —             |
 | TASK-007 | Orchestrator als Coordinator-Root-Agent                | ⏳ ausstehend   | —         | —             |
 | TASK-008 | Schreib-Pipeline-Gerüst (ohne Szenen-Schritt)          | ⏳ ausstehend   | —         | —             |
