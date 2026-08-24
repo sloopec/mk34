@@ -11,7 +11,7 @@ Aktualisiert: 2026-08-17T00:00:00Z
 | TASK-006 | Editor Agent (Lektorat)                                | ✅ erledigt     | 2026-08-24T13:45:00Z | 2026-08-24T14:15:00Z |
 | TASK-007 | Orchestrator als Coordinator-Root-Agent                | ✅ erledigt     | 2026-08-24T14:30:00Z | 2026-08-24T15:00:00Z |
 | TASK-008 | Schreib-Pipeline-Gerüst (ohne Szenen-Schritt)          | ✅ erledigt     | 2026-08-24T15:15:00Z | 2026-08-24T16:00:00Z |
-| TASK-009 | Smoke-Test und Lint                                    | ⏳ ausstehend   | —         | —             |
+| TASK-009 | Smoke-Test und Lint                                    | ✅ erledigt     | 2026-08-24T16:10:00Z | 2026-08-24T16:30:00Z |
 | TASK-010 | Eval für Multi-Agent-Trajektorie                       | ⏳ ausstehend   | —         | —             |
 | TASK-011 | Continuity Agent mit Retrieval                         | ⏳ ausstehend   | —         | —             |
 | TASK-012 | Timeline- und Character-State-Tracking                 | ⏳ ausstehend   | —         | —             |
