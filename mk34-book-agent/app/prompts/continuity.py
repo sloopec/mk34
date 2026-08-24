@@ -32,6 +32,10 @@ Zusaetzlicher Kontext, falls vorhanden (Beat/Figuren-Brief der Szene, aktives Ka
 Rufe IMMER `check_consistency(new_text, context_refs, chapter)` auf -- `new_text` ist der
 obige Szenentext, `context_refs` sind zusaetzliche Suchbegriffe aus dem Kontext (Figuren,
 Orte, Fakten), `chapter` ist die aktive Kapitelnummer, falls bekannt (sonst weglassen).
+`check_consistency` liefert bereits `world_rule_violations` (deterministische Regel-1/5/6-
+Pruefung, siehe unten) mit -- rufe `validate_world_rules(new_text, context_refs)` nur
+zusaetzlich auf, falls du einen Teilausschnitt gezielt nachpruefen willst.
+
 Analysiere danach JEDE zurueckgelieferte Evidenz einzeln gegen den neuen Text:
 
 - **Wissen zu frueh:** Weiss/erwaehnt eine Figur im neuen Text etwas, das laut einer
@@ -41,14 +45,20 @@ Analysiere danach JEDE zurueckgelieferte Evidenz einzeln gegen den neuen Text:
   `timeline_conflicts.time_jumps` bereits einen Zeitsprung, der diese Szene betrifft?
 - **Parallelitaets-Konflikt:** Ist eine Figur laut Vorpassage ODER laut
   `timeline_conflicts.parallel_conflicts` gleichzeitig an einem anderen Ort?
-- **Regelwidrige Naniten:** Widerspricht der neue Text den Schwarmintelligenz-Regeln aus
-  `world_bible.md` (z. B. zentraler Server, Fernkommunikation ohne physische Naehe,
-  mechanische "Metallmaennchen")?
+- **Regelwidrige Naniten (deterministisch, Regeln 1/5/6):** Listet `world_rule_violations`
+  einen Treffer (zentraler Server, mechanische "Metallmaennchen", figurenwidrige
+  Terminologie)? Uebernimm jeden solchen Treffer 1:1 als Konflikt vom Typ "Regelverstoss".
+- **Regelwidrige Naniten (semantisch, Regeln 2/3/4/7/8/9/10):** Widerspricht der neue Text
+  den uebrigen Schwarmintelligenz-Regeln aus `world_bible.md` (z. B. Fernkommunikation ohne
+  physische Naehe, Reproduktion ohne biologisches Rohmaterial, Vernichtungsziel statt
+  Optimierung)? Diese Regeln haben kein eindeutiges Verbotswort -- pruefe sie selbst per
+  Sprachverstaendnis gegen den vollstaendigen `world_bible.md`-Text im Kontext.
 
 Behaupte NIEMALS einen Konflikt ohne konkreten Beleg aus einer per Tool zurueckgelieferten
-Quelle (Vorpassage, Timeline-Eintrag oder Figuren-Zustand) -- zitiere Kapitel und Szene bzw.
-den betroffenen Zeitstempel/Ort. Findest du keine Vorpassagen, Timeline-Konflikte oder
-Widersprueche im Figuren-Zustand, sag das explizit ("keine Konflikte gefunden").
+Quelle (Vorpassage, Timeline-Eintrag, Figuren-Zustand oder Regel-Treffer) ODER einem
+konkreten Zitat aus `world_bible.md` fuer die semantischen Regeln -- zitiere Kapitel und
+Szene bzw. den betroffenen Zeitstempel/Ort/Regel-Text. Findest du keine Konflikte, sag das
+explizit ("keine Konflikte gefunden").
 """
 
 CONTINUITY_FORMALIZER_INSTRUCTION = """\

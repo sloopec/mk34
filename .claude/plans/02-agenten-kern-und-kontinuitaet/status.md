@@ -15,7 +15,7 @@ Aktualisiert: 2026-08-17T00:00:00Z
 | TASK-010 | Eval für Multi-Agent-Trajektorie                       | ✅ erledigt (Live-Score blockiert durch agents-cli-Bug, siehe Walkthrough) | 2026-08-24T16:45:00Z | 2026-08-24T17:30:00Z |
 | TASK-011 | Continuity Agent mit Retrieval                         | ✅ erledigt (Live-Verifikation durch transientes Netzwerkproblem blockiert, Eval-Ausführung durch agents-cli-Bug blockiert, siehe Walkthrough) | 2026-08-24T18:00:00Z | 2026-08-24T19:15:00Z |
 | TASK-012 | Timeline- und Character-State-Tracking                 | ✅ erledigt (Live-Verifikation weiterhin durch transientes Netzwerkproblem blockiert, siehe Walkthrough) | 2026-08-24T19:30:00Z | 2026-08-24T20:00:00Z |
-| TASK-013 | World-Rules-Engine                                     | ⏳ ausstehend   | —         | —             |
+| TASK-013 | World-Rules-Engine                                     | ✅ erledigt (Live-Verifikation weiterhin durch transientes Netzwerkproblem blockiert, siehe Walkthrough) | 2026-08-24T20:15:00Z | 2026-08-24T20:40:00Z |
 
 Statuswerte: `⏳ ausstehend` → `🔄 in Bearbeitung` → `✅ erledigt` oder `❌ abgebrochen`
 

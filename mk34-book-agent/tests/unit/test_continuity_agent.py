@@ -39,7 +39,7 @@ def test_create_continuity_agent_context_stage_has_check_consistency_tool() -> N
     tool_names = {
         getattr(t, "__name__", getattr(t, "name", None)) for t in context_agent.tools
     }
-    assert tool_names == {"check_consistency"}
+    assert tool_names == {"check_consistency", "validate_world_rules"}
 
 
 def test_create_continuity_agent_uses_continuity_model() -> None:

@@ -18,6 +18,10 @@
 # TASK-011: grounding prueft, ob der Continuity Agent Konflikte belegt statt
 # frei erfindet (nur relevant fuer continuity.json-Laeufe, aber unschaedlich
 # und billig auf anderen Datasets).
+# TASK-013: world_rule_compliance prueft, ob der Continuity Agent die 10
+# nummerierten Naniten-Weltregeln (world_bible.md, Abschnitt 3) korrekt
+# anwendet -- deterministische Treffer (validate_world_rules) uebernimmt und
+# semantische Verstoesse konkret belegt.
 metrics_to_run:
   - task_success
   - character_voice_consistency
@@ -26,6 +30,7 @@ metrics_to_run:
   - trajectory_quality
   - eli5_quality
   - grounding
+  - world_rule_compliance
 
 custom_metrics:
   - name: task_success
@@ -45,6 +50,9 @@ custom_metrics:
 
   - name: grounding
     custom_function_file: grounding_metric.py
+
+  - name: world_rule_compliance
+    custom_function_file: world_rule_compliance_metric.py
 
   # Deterministisch, kein LLM-Aufruf: prueft auf typische Platzhalter-Fehler.
   - name: no_placeholder_text

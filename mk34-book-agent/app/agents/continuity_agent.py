@@ -37,7 +37,7 @@ from app.prompts.continuity import (
     CONTINUITY_FORMALIZER_INSTRUCTION,
 )
 from app.schemas import ContinuityReport
-from app.tools.consistency import check_consistency
+from app.tools.consistency import check_consistency, validate_world_rules
 
 
 def _create_continuity_context_agent() -> Agent:
@@ -46,7 +46,7 @@ def _create_continuity_context_agent() -> Agent:
         model=model_for("continuity"),
         description="Sucht relevante Vorpassagen und identifiziert moegliche Konflikte.",
         instruction=CONTINUITY_CONTEXT_INSTRUCTION,
-        tools=[check_consistency],
+        tools=[check_consistency, validate_world_rules],
         output_key="continuity_raw",
     )
 
