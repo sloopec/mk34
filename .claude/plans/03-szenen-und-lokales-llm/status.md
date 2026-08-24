@@ -4,7 +4,7 @@ Aktualisiert: 2026-08-17T00:00:00Z
 | Task-ID  | Titel                                                | Status         | Gestartet | Abgeschlossen |
 |----------|------------------------------------------------------|----------------|-----------|---------------|
 | TASK-001 | Lokales LLM im Model-Router (Live-Roundtrip gg. laufende VM offen) | ✅ erledigt | 2026-08-24T00:00:00Z | 2026-08-24T00:00:00Z |
-| TASK-002 | Scene Agent (Start Gemini, Ziel lokal)               | ⏳ ausstehend   | —         | —             |
+| TASK-002 | Scene Agent (Start Gemini, Ziel lokal, lokale Route live offen) | ✅ erledigt | 2026-08-24T00:00:00Z | 2026-08-24T00:00:00Z |
 | TASK-003 | Szenen-Schritt in die Schreib-Pipeline               | ⏳ ausstehend   | —         | —             |
 | TASK-004 | Content-Klassifikation und lokales Routing           | ⏳ ausstehend   | —         | —             |
 | TASK-005 | Szenen-Evals (Datasets und Metriken)                 | ⏳ ausstehend   | —         | —             |
