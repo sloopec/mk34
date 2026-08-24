@@ -1,5 +1,5 @@
 # Durchführungsbericht: TASK-003 — Eval-Grundgerüst und Judge-Bibliothek
-Abgeschlossen: 2026-08-20T00:30:00Z
+Abgeschlossen: 2026-08-24T12:15:00Z (Nachtrag: Live-Verifikation)
 
 ## Was wurde umgesetzt
 
@@ -67,37 +67,90 @@ die Stufe (`fast`/`craft`) zählt und über `cost_log.snapshot()` abfragbar ist 
 Score-Report der Folge-Tasks (TASK-010) die Aufteilung auszuweisen, ohne zusätzliche
 Persistenz-Infrastruktur für dieses Zwischenziel zu bauen.
 
-## Bekannter Blocker — externe Ressourcengrenze, nicht code-bedingt
+## Nachtrag (2026-08-24): neuer API-Key, zwei Bugs im lokalen `custom_function`-Pfad gefixt
 
-**`agents-cli eval run` konnte heute nicht bis zum Ende durchlaufen werden.** Nach drei
-Versuchen (mit Wartezeiten dazwischen) liefert die Gemini-API durchgehend
-`429 RESOURCE_EXHAUSTED` mit `quotaId: GenerateRequestsPerDayPerProjectPerModel-FreeTier`,
-`quotaValue: 20` für `gemini-3.7-flash` — das **Tageskontingent** des kostenlosen
-`GEMINI_API_KEY`-Tiers ist vollständig ausgeschöpft (u. a. durch die Versuche selbst sowie
-vorangegangene Retries). Das ist keine Fehlkonfiguration im Code: `model_for("orchestrator")`
-löst korrekt auf, `GEMINI_API_KEY` wird korrekt geladen (bestätigt durch die erfolgreichen
-Requests, bevor das Kontingent griff, sowie durch `uv run --env-file .env pytest
-tests/integration -q`, die denselben Pfad nutzen und zuvor grün liefen).
+Der User hat den `GEMINI_API_KEY` ausgetauscht (kein Free-Tier-Tageslimit mehr). `agents-cli eval
+run` lief damit erstmals durch **`eval generate`** (beide Cases lieferten Traces), scheiterte aber
+zunächst zweimal in **`eval grade`** — beide Ursachen lagen im eigenen `custom_function`-Code
+dieses Tasks, nicht extern:
 
-**Auswirkung:** Das Akzeptanzkriterium "Beide Cases erreichen `task_success` ≥ 4/5;
-Score-Tabelle im PR/Commit dokumentiert" ist **heute nicht verifizierbar** und wird hiermit nicht
-fingiert. Alle anderen Akzeptanzkriterien (Dataset/Config eingecheckt, ausschließlich
-`custom_metrics`, Judge-Modellauflösung über `tier`, Kostenprotokoll getrennt nach Stufe, `safety`
-mit Begründung ausgeschlossen, Unit-Tests inkl. gestubbtem Claude-Pfad) sind erfüllt und durch
-`uv run pytest`/`agents-cli lint` verifiziert.
+1. **`NameError: name '__file__' is not defined`.** `agents-cli eval grade` führt
+   `custom_function_file`-Skripte per `exec()` aus, nicht als regulären Modul-Import — `__file__`
+   existiert in diesem Scope nicht. `task_success_metric.py`/`character_voice_consistency_metric.py`
+   lokalisierten `mk34_eval/` bisher über `Path(__file__).resolve().parent`. Fix: Auflösung über
+   `Path.cwd()` (mehrere Kandidatenpfade: `cwd/tests/eval`, `cwd/eval`, `cwd`), da die CLI
+   nachweislich aus dem Projekt-Root heraus läuft.
+2. **`ModuleNotFoundError: No module named 'google.adk'`** (nach Fix 1). `mk34_eval/judge.py`
+   importierte `from app.config import get_settings` — jeder Import von `app.*` löst zuerst
+   `app/__init__.py` aus, das wiederum `app.agent` (und damit `google-adk`) importiert.
+   `agents-cli eval grade` führt `custom_metrics` aber in der **eigenen** Python-Umgebung der
+   global installierten CLI aus (separates `uv tool install`, nicht das Projekt-`.venv`) — dort ist
+   `google-adk` nicht installiert. Fix: `judge.py` liest `MK34_JUDGE_MODEL_FAST`/
+   `MK34_JUDGE_MODEL_CRAFT` jetzt direkt aus `os.environ` (mit denselben Default-Werten wie
+   `app/config.py`s `Settings`), statt über `app.config.get_settings()` — macht die Judge-Bibliothek
+   zugleich unabhängiger von der ADK-Abhängigkeit, was ihrem Anspruch "provider-agnostisch,
+   wiederverwendbar über alle vier Pläne" besser entspricht. `tests/unit/test_judge.py` wurde
+   entsprechend auf `monkeypatch.setenv(...)` statt gestubbtem `Settings`-Objekt umgestellt.
 
-**Auswirkung auf den weiteren Plan:** Jeder Folge-Task mit einem Live-Eval- oder
-`agents-cli run`/`playground`-Gate (TASK-009, TASK-010, TASK-011 u. a.) trifft auf dieselbe
-Tageskontingent-Grenze, solange sie nicht zurückgesetzt ist. Dieser Blocker wird dem User separat
-gemeldet (siehe Chat-Antwort) — es wird nicht eigenmächtig auf ein anderes Modell/Provider
-umgeschaltet.
+Nach beiden Fixes lief `eval grade` bis zu einem dritten, diesmal **externen** Fehler.
+
+## Bekannter Blocker — Bug in `agents-cli` selbst (verifiziert per Root-Cause-Analyse, kein Code-Problem im Projekt)
+
+`agents-cli eval grade` scheitert reproduzierbar mit der undurchsichtigen Meldung
+`Error: Evaluation failed.` — auch mit gültigem `GEMINI_API_KEY`, ohne `GOOGLE_CLOUD_PROJECT`,
+ausschließlich mit lokalen `custom_metrics` (genau der von E1 vorgesehene Fall). Root Cause per
+Reproduktion direkt gegen die installierte CLI-Bibliothek ermittelt (`click.ClickException`
+verschluckt die eigentliche Exception):
+
+- **`agents-cli` v1.3.1:** `cmd_grade.py` instanziiert intern immer einen `vertexai.Client(...)`,
+  auch wenn `needs_gcp` `False` ist (reiner `custom_metrics`-Lauf). Dessen `EvalDatasetLoader`
+  baut unbedingt einen `google.cloud.storage.Client` auf, der `google.auth.default()` aufruft →
+  `google.auth.exceptions.DefaultCredentialsError: Your default credentials were not found.` — ein
+  lokaler Custom-Metrics-Lauf verlangt in dieser Version also faktisch doch Application Default
+  Credentials, obwohl laut Skill/Doku keine GCP-Anmeldung nötig sein soll.
+- **Nach Update auf `agents-cli` v1.4.0** (`uv tool upgrade google-agents-cli`, ausgelöst durch den
+  von der CLI selbst angezeigten Hinweis "Update available: 1.3.1 → 1.4.0"): Der ADC-Fehler ist
+  weg (`cmd_grade.py` nutzt jetzt `agentplatform.Client` statt `vertexai.Client` für den
+  GCP-losen Zweig), aber ein **neuer, anderer Bug** tritt auf: `cmd_grade.py`/`_load_traces_eval_cases`
+  parst die Trace-Datei weiterhin mit `vertexai._genai.types.common.EvaluationDataset
+  .model_validate_json(...)`, während `agentplatform.Client().evals.evaluate(...)` intern
+  `isinstance(dataset, agentplatform._genai.types.common.EvaluationDataset)` prüft — zwei
+  strukturell identische, aber **unterschiedliche Python-Klassen** aus zwei verschiedenen
+  Namespace-Paketen. Ergebnis: `TypeError: Unsupported dataset type: <class
+  'vertexai._genai.types.common.EvaluationDataset'>. Must be an EvaluationDataset or a list of
+  EvaluationDataset.` — ein interner Inkonsistenz-Bug zwischen der 1.4.0-Umstellung von
+  `vertexai.Client` auf `agentplatform.Client` und dem unveränderten Trace-Parsing-Codepfad.
+
+**Reproduktion (nicht im Projektcode, nur zur Diagnose):** direkter Aufruf der in `cmd_grade.py`
+verwendeten Funktionen (`prepare_eval_metrics`, `EvaluationDataset.model_validate_json`,
+`client.evals.evaluate`) über den Python-Interpreter der installierten CLI
+(`~/.local/share/uv/tools/google-agents-cli/bin/python3`), mit vollständigem Traceback statt der
+von `click.ClickException` verschluckten Meldung.
+
+**Einordnung:** Das ist ein Bug in `agents-cli` selbst (in beiden zuletzt verfügbaren Versionen,
+auf unterschiedliche Weise), kein Problem in `mk34_eval`, `eval_config.yaml`, dem Dataset oder dem
+API-Key. `mk34_eval.judge` selbst ist vollständig funktionsfähig und für Gemini **und** Claude per
+Unit-Test mit gestubbten Clients nachgewiesen (12 Tests, `tests/unit/test_judge.py`). Der
+tatsächliche End-to-End-Nachweis über den `agents-cli`-Befehlspfad ist **an dieser Stelle nicht
+erreichbar**, ohne den installierten Drittanbieter-Code selbst zu patchen — das liegt außerhalb
+des Projekt-Scopes und wurde bewusst unterlassen.
+
+**Auswirkung auf den Plan:** Jeder Folge-Task mit einem `agents-cli eval run`/`eval grade`-Gate
+(TASK-010, TASK-011) trifft auf denselben Bug, solange `agents-cli` nicht upstream gefixt wird.
+`agents-cli run`/`playground` (Smoke-Tests, TASK-009 u. a.) nutzen einen anderen Codepfad
+(`client.evals.evaluate` ist nicht beteiligt) und sind davon nicht betroffen — das wurde bei den
+Folge-Tasks jeweils separat geprüft, nicht angenommen.
 
 ## Verifikationsschritte
 
-1. `uv run pytest tests/unit/test_judge.py -q` → 11 passed.
-2. `uv run --env-file .env pytest tests/unit tests/integration -q` → 66 passed (bestätigt
-   `GEMINI_API_KEY` funktioniert grundsätzlich, vor Erreichen des Tageskontingents).
-3. `agents-cli lint` → `ruff check`, `ruff format --check`, `codespell`, `ty check` alle grün.
-4. `agents-cli eval run` → **nicht abgeschlossen**, siehe Blocker-Abschnitt oben. Score-Tabelle
-   kann daher an dieser Stelle nicht dokumentiert werden; wird nachgeholt, sobald das Kontingent
-   zurückgesetzt ist oder der User eine Alternative vorgibt.
+1. `uv run pytest tests/unit/test_judge.py -q` → 12 passed (inkl. Gemini- und gestubbtem
+   Claude-Pfad am selben Call-Site).
+2. `uv run pytest tests/unit -q` → 62 passed, keine Regression.
+3. `agents-cli lint` → `ruff check`, `ruff format --check`, `codespell`, `ty check` alle grün
+   (nach Ergänzung von `artifacts/` in `.gitignore` und der codespell-Skip-Liste — generierte
+   Eval-Artefakte sollen nicht versioniert/gescannt werden).
+4. `agents-cli eval run` → **`eval generate` erfolgreich** (beide Cases, Traces gespeichert);
+   **`eval grade` schlägt an einem verifizierten `agents-cli`-Bug fehl** (siehe Blocker-Abschnitt).
+   Score-Tabelle für `task_success` kann daher nicht dokumentiert werden — das Akzeptanzkriterium
+   "Beide Cases erreichen `task_success` ≥ 4/5" ist über diesen Codepfad aktuell nicht
+   verifizierbar und wird nicht fingiert.

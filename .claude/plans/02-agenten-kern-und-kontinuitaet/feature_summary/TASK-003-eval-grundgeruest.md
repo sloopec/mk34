@@ -27,15 +27,19 @@ in TASK-007.
 
 ## Bekannte Einschränkung
 
-Der reale Testlauf (`agents-cli eval run`) konnte am Umsetzungstag nicht zu Ende geführt werden:
-Das kostenlose Tageskontingent des verwendeten Gemini-API-Schlüssels ist erschöpft (20 Anfragen/Tag
-für `gemini-3.7-flash`). Das ist eine externe Ressourcengrenze, kein Fehler im gebauten System —
-alle Unit-Tests und die statische Qualitätsprüfung (Lint) sind grün. Der Score-Nachweis für die
-beiden Testfragen wird nachgeholt, sobald das Kontingent zurückgesetzt ist.
+Der reale Testlauf (`agents-cli eval run`) konnte auch nach Austausch des API-Schlüssels nicht
+zu Ende geführt werden — `eval generate` läuft erfolgreich durch, `eval grade` scheitert
+reproduzierbar an einem verifizierten Bug in `agents-cli` selbst (in beiden geprüften Versionen
+1.3.1 und 1.4.0, auf unterschiedliche Weise — siehe Walkthrough für die vollständige
+Root-Cause-Analyse). Zwei eigene Bugs im lokalen `custom_function`-Pfad (fehlender `__file__` im
+`exec()`-Kontext, unbeabsichtigter `google-adk`-Import über `app.config`) wurden dabei gefunden
+und gefixt. Die Judge-Bibliothek selbst ist vollständig unit-getestet (Gemini **und** Claude, 12
+Tests). Der Score-Nachweis über den `agents-cli`-Befehlspfad ist erst möglich, wenn der
+Drittanbieter-Bug behoben ist.
 
 ## Nächster Schritt
 
 TASK-004/005/006 (Plot-, Character-, Editor-Agent) — parallel geplant, jeweils mit eigenem
-Eval-Case gegen dieselbe Judge-Bibliothek. Die Live-Verifikation dieser und aller folgenden
-Tasks mit einem `agents-cli eval`/`run`/`playground`-Gate ist an dieselbe Kontingent-Grenze
-gebunden; siehe Rückmeldung an den User zu diesem Blocker.
+Eval-Case gegen dieselbe Judge-Bibliothek. `agents-cli eval run`/`eval grade` bleiben bis zu
+einem Upstream-Fix blockiert; `agents-cli run`/`playground` (Smoke-Tests) sind ein anderer
+Codepfad und davon nicht betroffen.

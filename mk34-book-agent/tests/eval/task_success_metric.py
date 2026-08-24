@@ -1,11 +1,29 @@
-"""Local LLM-as-judge for `task_success` (see eval_config.yaml). tier: fast."""
+"""Local LLM-as-judge for `task_success` (see eval_config.yaml). tier: fast.
+
+`custom_function_file` scripts are executed by `agents-cli eval grade` via
+`exec()`, not imported as a normal module -- `__file__` is not defined in
+that scope. Locate `mk34_eval/` relative to the process cwd instead (the CLI
+runs from the agent project root, e.g. `mk34-book-agent/`).
+"""
 
 import sys
 from pathlib import Path
 
-_EVAL_DIR = Path(__file__).resolve().parent
-if str(_EVAL_DIR) not in sys.path:
-    sys.path.insert(0, str(_EVAL_DIR))
+
+def _mk34_eval_dir() -> Path:
+    for candidate in (Path.cwd() / "tests" / "eval", Path.cwd() / "eval", Path.cwd()):
+        if (candidate / "mk34_eval").is_dir():
+            return candidate
+    raise RuntimeError(
+        "mk34_eval-Paket nicht gefunden (weder unter tests/eval noch im cwd "
+        f"{Path.cwd()})."
+    )
+
+
+_EVAL_DIR = _mk34_eval_dir()
+for _p in (str(_EVAL_DIR), str(Path.cwd())):
+    if _p not in sys.path:
+        sys.path.insert(0, _p)
 
 from mk34_eval.judge import judge  # noqa: E402
 from mk34_eval.trace import extract_text  # noqa: E402

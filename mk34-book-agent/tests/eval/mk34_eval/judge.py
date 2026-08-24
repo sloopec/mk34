@@ -3,16 +3,26 @@
 `judge(rubric, prompt, response, agent_data)` is the single call site every
 `custom_metrics` function goes through. The model is resolved from the
 rubric's `tier` frontmatter (`fast` -> `MK34_JUDGE_MODEL_FAST`, `craft` ->
-`MK34_JUDGE_MODEL_CRAFT`, Entscheidung E4) via `app.config.get_settings()` --
-never hardcoded at the call site. The provider is resolved from the model
-string's prefix (`gemini-*` -> `google-genai` SDK, `claude-*` -> `anthropic`
-SDK), so switching a judge tier from Gemini to Claude is a `.env` change,
-not a code change (Entscheidung E6).
+`MK34_JUDGE_MODEL_CRAFT`, Entscheidung E4) directly from the process
+environment (`os.environ`) -- never hardcoded at the call site. The provider
+is resolved from the model string's prefix (`gemini-*` -> `google-genai` SDK,
+`claude-*` -> `anthropic` SDK), so switching a judge tier from Gemini to
+Claude is a `.env` change, not a code change (Entscheidung E6).
+
+Deliberately independent of `app.*`: `agents-cli eval grade` executes
+`custom_metrics` in its own Python environment (a separate `uv tool install`,
+not this project's `.venv`), which does not have `google-adk` installed.
+Importing anything under the `app` package would trigger `app/__init__.py`
+(which imports `app.agent` -> `google.adk`) and fail there -- so this module
+reads `MK34_JUDGE_MODEL_FAST`/`MK34_JUDGE_MODEL_CRAFT` straight from
+`os.environ`, using the same defaults as `app/config.py`'s `Settings`,
+instead of going through `app.config.get_settings()`.
 """
 
 from __future__ import annotations
 
 import json
+import os
 import re
 import time
 from collections.abc import Callable
@@ -20,11 +30,14 @@ from pathlib import Path
 
 from pydantic import BaseModel
 
-from app.config import get_settings
-
 RUBRICS_DIR = Path(__file__).resolve().parent / "rubrics"
 _MAX_RETRIES = 2
 _RETRY_BASE_DELAY_SECONDS = 0.5
+
+# Mirrors app/config.py's Settings defaults (Startwerte E4/E6) -- kept in
+# sync manually since this module cannot import app.config (see docstring).
+_DEFAULT_JUDGE_MODEL_FAST = "gemini-3.7-flash"
+_DEFAULT_JUDGE_MODEL_CRAFT = "gemini-3.1-pro-preview"
 
 
 class Verdict(BaseModel):
@@ -78,12 +91,9 @@ def load_rubric(name: str) -> tuple[str, str]:
 
 
 def _model_for_tier(tier: str) -> str:
-    settings = get_settings()
-    return (
-        settings.mk34_judge_model_fast
-        if tier == "fast"
-        else settings.mk34_judge_model_craft
-    )
+    if tier == "fast":
+        return os.environ.get("MK34_JUDGE_MODEL_FAST", _DEFAULT_JUDGE_MODEL_FAST)
+    return os.environ.get("MK34_JUDGE_MODEL_CRAFT", _DEFAULT_JUDGE_MODEL_CRAFT)
 
 
 def _provider_for_model(model: str) -> str:

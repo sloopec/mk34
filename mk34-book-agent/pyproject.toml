@@ -85,7 +85,7 @@ deprecated = "ignore"
 # misspelling dictionary (ist->is, als->also, oder->order, modell->model,
 # lokale/lokales->locale/locales, explizit->explicit).
 ignore-words-list = "rouge,ist,als,oder,modell,lokale,lokales,explizit,hart,szene,sie,alle,unter,lokal"
-skip = "./locust_env/*,uv.lock,.venv,./frontend,**/package-lock.json"
+skip = "./locust_env/*,uv.lock,.venv,./frontend,**/package-lock.json,./artifacts/*"
 
 
 [build-system]

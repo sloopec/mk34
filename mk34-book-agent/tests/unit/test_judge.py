@@ -17,8 +17,10 @@
 Verifies the provider-agnostic contract with stubbed clients -- no real API
 calls, no `GEMINI_API_KEY`/`ANTHROPIC_API_KEY` needed. The call site
 (`judge(...)`) is identical for both providers; only the resolved model
-string (via `tier` -> `app.config.Settings`) determines which client gets
-used.
+string (via `tier` -> `MK34_JUDGE_MODEL_FAST`/`MK34_JUDGE_MODEL_CRAFT`
+environment variables) determines which client gets used. `judge.py` reads
+these directly from `os.environ` rather than `app.config` -- see the
+docstring in `tests/eval/mk34_eval/judge.py` for why.
 """
 
 from __future__ import annotations
@@ -33,8 +35,6 @@ if str(_EVAL_DIR) not in sys.path:
     sys.path.insert(0, str(_EVAL_DIR))
 
 from mk34_eval import judge as judge_module  # noqa: E402
-
-from app.config import Settings  # noqa: E402
 
 
 @pytest.fixture
@@ -52,16 +52,6 @@ def rubrics_dir(tmp_path, monkeypatch):
     monkeypatch.setattr(judge_module, "RUBRICS_DIR", d)
     judge_module.cost_log.reset()
     return d
-
-
-def _settings(**overrides) -> Settings:
-    defaults = {
-        "mk34_judge_model_fast": "gemini-3.7-flash",
-        "mk34_judge_model_craft": "gemini-3.1-pro-preview",
-        "_env_file": None,
-    }
-    defaults.update(overrides)
-    return Settings(**defaults)
 
 
 # --- load_rubric --------------------------------------------------------------
@@ -216,14 +206,20 @@ def test_provider_for_model_unknown_prefix_raises() -> None:
         judge_module._provider_for_model("mystery-model")
 
 
-def test_model_for_tier_reads_from_settings(rubrics_dir, monkeypatch) -> None:
-    settings = _settings(
-        mk34_judge_model_fast="gemini-fast-marker",
-        mk34_judge_model_craft="gemini-craft-marker",
-    )
-    monkeypatch.setattr(judge_module, "get_settings", lambda: settings)
+def test_model_for_tier_reads_from_environment(rubrics_dir, monkeypatch) -> None:
+    monkeypatch.setenv("MK34_JUDGE_MODEL_FAST", "gemini-fast-marker")
+    monkeypatch.setenv("MK34_JUDGE_MODEL_CRAFT", "gemini-craft-marker")
     assert judge_module._model_for_tier("fast") == "gemini-fast-marker"
     assert judge_module._model_for_tier("craft") == "gemini-craft-marker"
+
+
+def test_model_for_tier_falls_back_to_documented_defaults(
+    rubrics_dir, monkeypatch
+) -> None:
+    monkeypatch.delenv("MK34_JUDGE_MODEL_FAST", raising=False)
+    monkeypatch.delenv("MK34_JUDGE_MODEL_CRAFT", raising=False)
+    assert judge_module._model_for_tier("fast") == "gemini-3.7-flash"
+    assert judge_module._model_for_tier("craft") == "gemini-3.1-pro-preview"
 
 
 # --- cost log -------------------------------------------------------------------
