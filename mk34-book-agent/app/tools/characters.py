@@ -20,10 +20,18 @@ siehe Plan 1/TASK-003) und `first_appearance`. `update_character` haengt
 Entwicklungen an ein separates `development_log`-Feld an, statt `arc`
 destruktiv zu ueberschreiben.
 
-Feingranulares, kapitelweises `knowledge_state`-Tracking (pro Figur *und*
-Kapitel) kommt erst mit TASK-012 (Timeline-/Character-State-Tracking) --
-`get_knowledge_state` liefert bis dahin das vorhandene Phasen-Fliesstext-Feld
-plus Hinweis, bis zu welcher Phase es reicht.
+Feingranulares, kapitelweises Zustandstracking (TASK-012) liegt im neuen
+Feld `state_by_chapter` je Figur: `{"<chapter>": {"location", "knowledge",
+"emotional_state", "infection_status"}}` -- Kapitelnummern als String-Keys
+(JSON kennt keine int-Keys). `infection_status` ist LifeLink-spezifisch:
+`"nicht_optimiert" | "infiziert" | "voll_compliant"` (vgl. `basics.md`,
+Szene E: "volle Compliance trotz kognitiver Ablehnung").
+
+`get_knowledge_state` liefert weiterhin auch das grobe Phasen-Fliesstext-Feld
+(`knowledge_state`, aus Plan 1) fuer Abwaertskompatibilitaet, ergaenzt aber ab
+TASK-012 um den kapitelgenauen Zustand aus `state_by_chapter`, falls
+vorhanden -- mit Fallback auf den zuletzt bekannten Stand vor dem
+angefragten Kapitel (Figuren aendern ihren Zustand nicht rueckwirkend).
 """
 
 from __future__ import annotations
@@ -133,24 +141,136 @@ def get_character_arc(name: str) -> dict:
 def get_knowledge_state(name: str, chapter: int) -> dict:
     """Liefert, was eine Figur bis zu einem bestimmten Zeitpunkt weiss.
 
+    Kombiniert das grobe Phasen-Fliesstext-Feld (`knowledge_state`, Plan 1)
+    mit dem kapitelgenauen Zustand aus `state_by_chapter` (TASK-012), falls
+    vorhanden. Fuer den kapitelgenauen Teil gilt: der zuletzt bekannte
+    Zustand *vor oder bei* `chapter` gilt weiter, solange kein neuerer
+    Eintrag existiert (Figuren "vergessen" ihren Zustand nicht zwischen
+    Kapiteln ohne expliziten Eintrag).
+
     Args:
         name: Exakter Figurenname.
         chapter: 1-basierte Kapitelnummer, fuer die der Wissensstand
-            interessiert (dient hier nur der Nachvollziehbarkeit im
-            Rueckgabewert -- die eigentliche Filterung nach Kapitel kommt
-            erst mit TASK-012).
+            interessiert.
 
     Returns:
         Bei Erfolg `{"status": "success", "name": str, "chapter": int,
-        "knowledge_state": str}`. Ist die Figur nicht bekannt:
-        `{"status": "not_found", "name": str}`.
+        "knowledge_state": str, "chapter_state": dict | None}`.
+        `chapter_state` ist `None`, wenn fuer diese oder eine fruehere
+        Kapitelnummer noch kein Eintrag existiert. Ist die Figur nicht
+        bekannt: `{"status": "not_found", "name": name}`.
     """
     character = _find_character(_read_characters(), name)
     if character is None:
         return {"status": "not_found", "name": name}
+    chapter_state = _latest_chapter_state(character, chapter)
     return {
         "status": "success",
         "name": name,
         "chapter": chapter,
         "knowledge_state": character.get("knowledge_state", ""),
+        "chapter_state": chapter_state,
+    }
+
+
+def _latest_chapter_state(character: dict, chapter: int) -> dict | None:
+    """Der zuletzt bekannte kapitelweise Zustand bei oder vor `chapter`."""
+    states = character.get("state_by_chapter", {})
+    candidates = [
+        (int(key), value) for key, value in states.items() if int(key) <= chapter
+    ]
+    if not candidates:
+        return None
+    latest_chapter, state = max(candidates, key=lambda item: item[0])
+    return {"chapter": latest_chapter, **state}
+
+
+def update_character_state(
+    name: str,
+    chapter: int,
+    location: str = "",
+    knowledge: str = "",
+    emotional_state: str = "",
+    infection_status: str = "",
+) -> dict:
+    """Aktualisiert den kapitelweisen Zustand einer Figur (TASK-012).
+
+    Wird als Post-Write-Schritt der Schreib-Pipeline pro Szene aufgerufen
+    (siehe `app/pipelines/writing.py`) -- deterministisches Schreiben, auch
+    wenn die zugrundeliegende Extraktion (welche Werte gelten) kuenftig
+    LLM-gestuetzt erfolgen kann. Ueberschreibt einen bestehenden Eintrag fuer
+    dasselbe Kapitel (letzter Stand gewinnt, analog zu `write_scene`s
+    Replace-Semantik pro Szene).
+
+    Args:
+        name: Exakter Figurenname.
+        chapter: 1-basierte Kapitelnummer.
+        location: Aktueller Aufenthaltsort der Figur.
+        knowledge: Kurzbeschreibung des aktuellen Wissensstands.
+        emotional_state: Aktueller emotionaler Zustand.
+        infection_status: `"nicht_optimiert" | "infiziert" | "voll_compliant"`.
+
+    Returns:
+        Bei Erfolg `{"status": "success", "name": str, "chapter": int}`.
+        Ist die Figur nicht bekannt: `{"status": "not_found", "name": name}`.
+    """
+    data = _read_characters()
+    character = _find_character(data, name)
+    if character is None:
+        return {"status": "not_found", "name": name}
+    states = character.setdefault("state_by_chapter", {})
+    states[str(chapter)] = {
+        "location": location,
+        "knowledge": knowledge,
+        "emotional_state": emotional_state,
+        "infection_status": infection_status,
+    }
+    _write_characters(data)
+    return {"status": "success", "name": name, "chapter": chapter}
+
+
+def check_knowledge_prerequisite(
+    name: str, chapter: int, required_knowledge: str
+) -> dict:
+    """Warnt, wenn eine Szene Wissen voraussetzt, das eine Figur zu diesem
+    Zeitpunkt laut ihrem gepflegten Zustand noch nicht haben kann.
+
+    Rein stringbasierter, deterministischer Abgleich (kein LLM-Aufruf): das
+    `required_knowledge`-Stichwort muss entweder im kapitelgenauen
+    `knowledge`-Feld des zuletzt bekannten Zustands oder im groben
+    Phasen-Fliesstext (`knowledge_state`) vorkommen. Ist kein kapitelgenauer
+    Zustand fuer diese oder eine fruehere Kapitelnummer bekannt, wird das
+    NICHT automatisch als Verstoss gewertet (fehlende Daten sind kein
+    Widerspruchsbeweis) -- `status` ist dann `"unknown"`.
+
+    Args:
+        name: Exakter Figurenname.
+        chapter: 1-basierte Kapitelnummer der zu pruefenden Szene.
+        required_knowledge: Stichwort/Kurzsatz des vorausgesetzten Wissens.
+
+    Returns:
+        `{"status": "ok" | "violation" | "unknown", "name": str,
+        "chapter": int, "required_knowledge": str}`. Ist die Figur nicht
+        bekannt: `{"status": "not_found", "name": name}`.
+    """
+    result = get_knowledge_state(name, chapter)
+    if result["status"] == "not_found":
+        return result
+    chapter_state = result.get("chapter_state")
+    if chapter_state is None:
+        return {
+            "status": "unknown",
+            "name": name,
+            "chapter": chapter,
+            "required_knowledge": required_knowledge,
+        }
+    known_text = (
+        f"{chapter_state.get('knowledge', '')} {result.get('knowledge_state', '')}"
+    )
+    status = "ok" if required_knowledge.lower() in known_text.lower() else "violation"
+    return {
+        "status": status,
+        "name": name,
+        "chapter": chapter,
+        "required_knowledge": required_knowledge,
     }

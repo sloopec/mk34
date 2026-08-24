@@ -16,6 +16,16 @@
 Editor-Loop, als deterministischer `SequentialAgent` statt LLM-Delegation --
 die Reihenfolge ist fest und soll nicht vom Modell entschieden werden.
 
+**POST-WRITE-HOOK (TASK-012):** Nach einer final gespeicherten Szene
+(`write_scene`, Grade "pass") schreibt `_update_timeline_and_character_state`
+automatisch einen Timeline-Eintrag (`app/tools/timeline.py::append_event`)
+und aktualisiert den kapitelweisen Zustand der beteiligten Figuren
+(`app/tools/characters.py::update_character_state`). Die Extraktion ist in
+diesem Plan bewusst deterministisch (Regex/Stichworterkennung), nicht
+LLM-gestuetzt -- haelt den Hook offline fixture-testbar; wird "scharf
+geschaltet" (echte, generierte Szenen statt Fixture) mit dem Scene Agent in
+Plan 3.
+
 **SZENEN-SLOT (Entscheidung E8):** In diesem Plan gibt es noch keinen Scene
 Agent (kommt in `03-szenen-und-lokales-llm/TASK-003`). Statt Text zu
 generieren, setzt `_SceneSlotFixture` `state["scene_draft"]` auf das
@@ -43,8 +53,10 @@ from app.agents.character_agent import create_character_agent
 from app.agents.editor_agent import create_editor_agent
 from app.agents.quality_checker import QualityChecker
 from app.models.router import model_for
+from app.tools.characters import update_character_state
 from app.tools.context_loader import load_scene_context
-from app.tools.manuscript import write_scene, write_scene_draft
+from app.tools.manuscript import characters_mentioned, write_scene, write_scene_draft
+from app.tools.timeline import append_event, extract_timestamp
 
 _FIXTURE_PATH = (
     Path(__file__).resolve().parents[2]
@@ -123,17 +135,90 @@ class _SceneSlotFixture(BaseAgent):
         )
 
 
+_INFECTION_KEYWORDS = (
+    ("compliance", "voll_compliant"),
+    ("voll compliant", "voll_compliant"),
+    ("infiziert", "infiziert"),
+    ("infektion", "infiziert"),
+    ("nicht optimiert", "nicht_optimiert"),
+    ("unoptimiert", "nicht_optimiert"),
+)
+
+
+def _detect_infection_status(text: str) -> str:
+    """Best-effort Stichwort-Erkennung, kein semantisches Verstehen.
+
+    Deterministischer Platzhalter fuer die in der Task-Beschreibung
+    vorgesehene LLM-gestuetzte Extraktion (siehe Modul-Docstring/Walkthrough
+    TASK-012) -- reicht fuer Fixture-Tests, wird mit dem Scene Agent in
+    Plan 3 durch eine belastbarere Extraktion ersetzt.
+    """
+    lowered = text.lower()
+    for keyword, status in _INFECTION_KEYWORDS:
+        if keyword in lowered:
+            return status
+    return ""
+
+
+def _update_timeline_and_character_state(
+    callback_context: CallbackContext, text: str
+) -> None:
+    """Post-Write-Schritt (TASK-012): traegt die geschriebene Szene in die
+    Timeline ein und aktualisiert den kapitelweisen Zustand der beteiligten
+    Figuren.
+
+    Deterministische Extraktion (Regex-Uhrzeit, bekannte Figurennamen,
+    Stichwort-Erkennung fuer den Infektionsstatus) statt LLM-Aufruf -- haelt
+    den Hook offline testbar (Akzeptanzkriterium "pytest deckt
+    Timeline-Validierung mit Fixtures ab") und deterministisch (Task-
+    Beschreibung: "das Schreiben deterministisch ueber Tools"). Wird mit dem
+    Scene Agent in Plan 3 durch eine LLM-gestuetzte Extraktion ergaenzt/
+    ersetzt, sobald generierter statt Fixture-Text vorliegt (siehe
+    Walkthrough TASK-012).
+    """
+    state = callback_context.state
+    chapter = state.get("active_chapter", 1)
+    scene = state.get("active_scene", 1)
+    beat = (state.get("scene_context") or {}).get("beat") or {}
+    characters = beat.get("characters_present") or characters_mentioned(text)
+    location = beat.get("location", "")
+    description = beat.get("beat", "") or " ".join(text.split())[:150]
+    timestamp = extract_timestamp(text)
+    infection_status = _detect_infection_status(text)
+
+    append_event(
+        chapter=chapter,
+        scene=scene,
+        timestamp=timestamp,
+        location=location,
+        description=description,
+        characters=characters,
+    )
+    for name in characters:
+        update_character_state(
+            name=name,
+            chapter=chapter,
+            location=location,
+            knowledge=description,
+            emotional_state="",
+            infection_status=infection_status,
+        )
+
+
 async def _persist_or_draft(callback_context: CallbackContext) -> None:
     """Nach dem Editor-Loop: finale Fassung via `write_scene`, sonst
     `.draft.md` mit Verdikt-Frontmatter -- nie stillschweigend als fertig
-    markieren (Persistenz-Konvention, TASK-008)."""
+    markieren (Persistenz-Konvention, TASK-008). Bei finaler Fassung
+    zusaetzlich Post-Write-Schritt fuer Timeline/Character-State (TASK-012)."""
     state = callback_context.state
     verdict = state.get("editor_verdict")
     chapter = state.get("active_chapter", 1)
     scene = state.get("active_scene", 1)
 
     if verdict and verdict.get("grade") == "pass":
-        write_scene(chapter=chapter, scene=scene, text=verdict.get("revised_text", ""))
+        final_text = verdict.get("revised_text", "")
+        write_scene(chapter=chapter, scene=scene, text=final_text)
+        _update_timeline_and_character_state(callback_context, final_text)
         return
 
     draft_text = (verdict or {}).get("revised_text") or state.get("scene_draft", "")

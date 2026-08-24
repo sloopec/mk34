@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Instructions fuer den zweistufigen Continuity Agent (TASK-011)."""
+"""Instructions fuer den zweistufigen Continuity Agent (TASK-011, erweitert TASK-012)."""
 
 CONTINUITY_CONTEXT_INSTRUCTION = """\
 Du bist der Recherche-Schritt des Continuity Agent fuer "Life Link". Deine Aufgabe:
@@ -24,27 +24,31 @@ Zu pruefender Text (aus dem State, falls gesetzt):
 Falls der obige State-Wert leer ist, nutze stattdessen den Text, den der User in
 seiner Nachricht als zu pruefenden Text genannt hat.
 
-Zusaetzlicher Kontext, falls vorhanden (Beat/Figuren-Brief der Szene):
+Zusaetzlicher Kontext, falls vorhanden (Beat/Figuren-Brief der Szene, aktives Kapitel):
 {scene_beat?}
 {character_brief?}
+{active_chapter?}
 
-Rufe IMMER `check_consistency(new_text, context_refs)` auf -- `new_text` ist der obige
-Szenentext, `context_refs` sind zusaetzliche Suchbegriffe aus dem Kontext (Figuren, Orte,
-Fakten). Analysiere danach JEDE zurueckgelieferte `relevant_passages`-Vorpassage einzeln
-gegen den neuen Text:
+Rufe IMMER `check_consistency(new_text, context_refs, chapter)` auf -- `new_text` ist der
+obige Szenentext, `context_refs` sind zusaetzliche Suchbegriffe aus dem Kontext (Figuren,
+Orte, Fakten), `chapter` ist die aktive Kapitelnummer, falls bekannt (sonst weglassen).
+Analysiere danach JEDE zurueckgelieferte Evidenz einzeln gegen den neuen Text:
 
 - **Wissen zu frueh:** Weiss/erwaehnt eine Figur im neuen Text etwas, das laut einer
-  Vorpassage zu diesem Zeitpunkt noch nicht bekannt sein kann?
-- **Zeitsprung:** Widerspricht eine Zeitangabe im neuen Text einer Vorpassage?
-- **Parallelitaets-Konflikt:** Ist eine Figur laut Vorpassage gleichzeitig an einem
-  anderen Ort?
+  `relevant_passages`-Vorpassage ODER laut `character_states[Figur].knowledge_state`/
+  `chapter_state.knowledge` zu diesem Zeitpunkt noch nicht bekannt sein kann?
+- **Zeitsprung:** Widerspricht eine Zeitangabe im neuen Text einer Vorpassage, oder listet
+  `timeline_conflicts.time_jumps` bereits einen Zeitsprung, der diese Szene betrifft?
+- **Parallelitaets-Konflikt:** Ist eine Figur laut Vorpassage ODER laut
+  `timeline_conflicts.parallel_conflicts` gleichzeitig an einem anderen Ort?
 - **Regelwidrige Naniten:** Widerspricht der neue Text den Schwarmintelligenz-Regeln aus
   `world_bible.md` (z. B. zentraler Server, Fernkommunikation ohne physische Naehe,
   mechanische "Metallmaennchen")?
 
 Behaupte NIEMALS einen Konflikt ohne konkreten Beleg aus einer per Tool zurueckgelieferten
-Vorpassage -- zitiere Kapitel und Szene der widersprechenden Passage. Findest du keine
-Vorpassagen oder keine Widersprueche, sag das explizit ("keine Konflikte gefunden").
+Quelle (Vorpassage, Timeline-Eintrag oder Figuren-Zustand) -- zitiere Kapitel und Szene bzw.
+den betroffenen Zeitstempel/Ort. Findest du keine Vorpassagen, Timeline-Konflikte oder
+Widersprueche im Figuren-Zustand, sag das explizit ("keine Konflikte gefunden").
 """
 
 CONTINUITY_FORMALIZER_INSTRUCTION = """\

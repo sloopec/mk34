@@ -27,8 +27,10 @@ from google.adk.agents import LoopAgent
 
 from app.agents.quality_checker import QualityChecker
 from app.pipelines.writing import (
+    _detect_infection_status,
     _persist_or_draft,
     _SceneSlotFixture,
+    _update_timeline_and_character_state,
     create_writing_pipeline,
 )
 
@@ -98,6 +100,12 @@ async def test_persist_or_draft_writes_final_scene_on_pass(monkeypatch) -> None:
         "app.pipelines.writing.write_scene_draft",
         lambda **kwargs: written.append(("draft", kwargs)),
     )
+    # TASK-012: the post-write hook must not touch the real store during
+    # this structural test -- isolate it explicitly.
+    monkeypatch.setattr("app.pipelines.writing.append_event", lambda **kwargs: None)
+    monkeypatch.setattr(
+        "app.pipelines.writing.update_character_state", lambda **kwargs: None
+    )
     ctx = _FakeCallbackContext(
         {
             "active_chapter": 5,
@@ -113,6 +121,52 @@ async def test_persist_or_draft_writes_final_scene_on_pass(monkeypatch) -> None:
     assert kind == "final"
     assert kwargs["chapter"] == 5
     assert kwargs["text"] == "Fertige Szene."
+
+
+@pytest.mark.asyncio
+async def test_persist_or_draft_calls_post_write_hook_on_pass(monkeypatch) -> None:
+    monkeypatch.setattr("app.pipelines.writing.write_scene", lambda **kwargs: None)
+    hook_calls = []
+    monkeypatch.setattr(
+        "app.pipelines.writing._update_timeline_and_character_state",
+        lambda ctx, text: hook_calls.append(text),
+    )
+    ctx = _FakeCallbackContext(
+        {
+            "active_chapter": 5,
+            "active_scene": 1,
+            "editor_verdict": {"grade": "pass", "revised_text": "Fertige Szene."},
+        }
+    )
+
+    await _persist_or_draft(ctx)
+
+    assert hook_calls == ["Fertige Szene."]
+
+
+@pytest.mark.asyncio
+async def test_persist_or_draft_skips_post_write_hook_when_not_pass(
+    monkeypatch,
+) -> None:
+    monkeypatch.setattr(
+        "app.pipelines.writing.write_scene_draft", lambda **kwargs: None
+    )
+    hook_calls = []
+    monkeypatch.setattr(
+        "app.pipelines.writing._update_timeline_and_character_state",
+        lambda ctx, text: hook_calls.append(text),
+    )
+    ctx = _FakeCallbackContext(
+        {
+            "active_chapter": 5,
+            "active_scene": 1,
+            "editor_verdict": {"grade": "needs_revision", "revised_text": "Entwurf."},
+        }
+    )
+
+    await _persist_or_draft(ctx)
+
+    assert hook_calls == []
 
 
 @pytest.mark.asyncio
@@ -167,3 +221,91 @@ async def test_persist_or_draft_writes_draft_when_no_verdict_yet(monkeypatch) ->
     kind, kwargs = written[0]
     assert kind == "draft"
     assert kwargs["text"] == "Rohfassung."
+
+
+# --- _update_timeline_and_character_state / _detect_infection_status (TASK-012) --------
+
+
+def test_detect_infection_status_finds_compliance() -> None:
+    assert (
+        _detect_infection_status("Volle Compliance trotz Ablehnung.")
+        == "voll_compliant"
+    )
+
+
+def test_detect_infection_status_finds_infiziert() -> None:
+    assert _detect_infection_status("Sie ist infiziert.") == "infiziert"
+
+
+def test_detect_infection_status_finds_nicht_optimiert() -> None:
+    assert _detect_infection_status("Er ist noch nicht optimiert.") == "nicht_optimiert"
+
+
+def test_detect_infection_status_empty_when_no_keyword() -> None:
+    assert _detect_infection_status("Ein ganz normaler Satz.") == ""
+
+
+def test_update_timeline_and_character_state_uses_beat_metadata(monkeypatch) -> None:
+    append_calls = []
+    state_calls = []
+    monkeypatch.setattr(
+        "app.pipelines.writing.append_event",
+        lambda **kwargs: append_calls.append(kwargs),
+    )
+    monkeypatch.setattr(
+        "app.pipelines.writing.update_character_state",
+        lambda **kwargs: state_calls.append(kwargs),
+    )
+    ctx = _FakeCallbackContext(
+        {
+            "active_chapter": 3,
+            "active_scene": 1,
+            "scene_context": {
+                "beat": {
+                    "pov_character": "David",
+                    "location": "Kommune",
+                    "characters_present": ["David", "Dr. Sarah Lin"],
+                    "beat": "David erreicht die Kommune.",
+                }
+            },
+        }
+    )
+
+    _update_timeline_and_character_state(ctx, "20:43 Uhr | David kommt an.")
+
+    assert len(append_calls) == 1
+    event = append_calls[0]
+    assert event["chapter"] == 3
+    assert event["scene"] == 1
+    assert event["timestamp"] == "20:43 Uhr"
+    assert event["location"] == "Kommune"
+    assert event["characters"] == ["David", "Dr. Sarah Lin"]
+
+    assert len(state_calls) == 2
+    names = {call["name"] for call in state_calls}
+    assert names == {"David", "Dr. Sarah Lin"}
+    for call in state_calls:
+        assert call["chapter"] == 3
+        assert call["location"] == "Kommune"
+
+
+def test_update_timeline_and_character_state_falls_back_without_beat(
+    monkeypatch,
+) -> None:
+    append_calls = []
+    monkeypatch.setattr(
+        "app.pipelines.writing.append_event",
+        lambda **kwargs: append_calls.append(kwargs),
+    )
+    monkeypatch.setattr(
+        "app.pipelines.writing.update_character_state", lambda **kwargs: None
+    )
+    monkeypatch.setattr(
+        "app.pipelines.writing.characters_mentioned", lambda text: ["David"]
+    )
+    ctx = _FakeCallbackContext({"active_chapter": 1, "active_scene": 1})
+
+    _update_timeline_and_character_state(ctx, "Ein Text ohne Beat-Metadaten.")
+
+    assert append_calls[0]["characters"] == ["David"]
+    assert append_calls[0]["location"] == ""

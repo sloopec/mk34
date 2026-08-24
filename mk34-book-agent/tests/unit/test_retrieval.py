@@ -25,7 +25,9 @@ import pytest
 
 from app.retrieval import index as index_module
 from app.retrieval import query as query_module
+from app.tools import characters as characters_module
 from app.tools import consistency, manuscript
+from app.tools import timeline as timeline_module
 
 
 @pytest.fixture
@@ -53,6 +55,11 @@ def book(tmp_path, monkeypatch):
     monkeypatch.setattr(index_module, "store_dir", lambda: store_dir)
     monkeypatch.setattr(index_module, "index_path", lambda: index_file)
     monkeypatch.setattr(query_module, "index_path", lambda: index_file)
+    # TASK-012: check_consistency also reads timeline.json/characters.json --
+    # isolate those too, so this fixture stays hermetic (never touches the
+    # real books/life_link/store/).
+    monkeypatch.setattr(characters_module, "store_dir", lambda: store_dir)
+    monkeypatch.setattr(timeline_module, "store_dir", lambda: store_dir)
 
     return {"store": store_dir, "manuscript": manuscript_dir, "index": index_file}
 
@@ -218,3 +225,52 @@ def test_check_consistency_empty_index_returns_empty_passages(book) -> None:
     result = consistency.check_consistency("Ganz neuer Text.", ["Unbekannt"])
     assert result["status"] == "success"
     assert result["relevant_passages"] == []
+
+
+# --- check_consistency: Timeline-/Character-State-Integration (TASK-012) ------------
+
+
+def test_check_consistency_includes_empty_timeline_conflicts_by_default(book) -> None:
+    result = consistency.check_consistency("Ein Text.", [])
+    assert result["timeline_conflicts"] == {"time_jumps": [], "parallel_conflicts": []}
+    assert result["character_states"] == {}
+
+
+def test_check_consistency_surfaces_parallel_conflict_for_mentioned_character(
+    book,
+) -> None:
+    from app.tools import timeline as timeline_module
+
+    timeline_module.append_event(
+        1, 1, "20:00 Uhr", "Kommune", "David bei Sarah.", ["David"]
+    )
+    timeline_module.append_event(
+        1, 2, "20:00 Uhr", "Davids Wohnung", "David zu Hause.", ["David"]
+    )
+
+    result = consistency.check_consistency("David spricht mit Sarah.", [])
+
+    assert len(result["timeline_conflicts"]["parallel_conflicts"]) == 1
+    assert result["timeline_conflicts"]["parallel_conflicts"][0]["character"] == "David"
+
+
+def test_check_consistency_returns_character_state_when_chapter_given(book) -> None:
+    from app.tools import characters as characters_module
+
+    characters_module.update_character_state(
+        "David", chapter=2, knowledge="Kennt die Diagnose."
+    )
+
+    result = consistency.check_consistency(
+        "David erzaehlt von der Diagnose.", [], chapter=3
+    )
+
+    assert "David" in result["character_states"]
+    assert result["character_states"]["David"]["chapter_state"]["knowledge"] == (
+        "Kennt die Diagnose."
+    )
+
+
+def test_check_consistency_character_states_empty_without_chapter(book) -> None:
+    result = consistency.check_consistency("David erzaehlt etwas.", [])
+    assert result["character_states"] == {}

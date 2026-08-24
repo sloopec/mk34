@@ -125,3 +125,91 @@ def test_get_knowledge_state_returns_field(store) -> None:
 
 def test_get_knowledge_state_not_found(store) -> None:
     assert characters.get_knowledge_state("Unbekannt", 1)["status"] == "not_found"
+
+
+def test_get_knowledge_state_chapter_state_is_none_without_entries(store) -> None:
+    result = characters.get_knowledge_state("David", 5)
+    assert result["chapter_state"] is None
+
+
+# --- update_character_state / get_knowledge_state (TASK-012) -----------------------
+
+
+def test_update_character_state_writes_chapter_entry(store) -> None:
+    result = characters.update_character_state(
+        "David",
+        chapter=3,
+        location="Kommune",
+        knowledge="Kennt die Diagnose.",
+        emotional_state="verunsichert",
+        infection_status="nicht_optimiert",
+    )
+    assert result == {"status": "success", "name": "David", "chapter": 3}
+
+    data = json.loads((store / "characters.json").read_text(encoding="utf-8"))
+    assert data["characters"][0]["state_by_chapter"]["3"] == {
+        "location": "Kommune",
+        "knowledge": "Kennt die Diagnose.",
+        "emotional_state": "verunsichert",
+        "infection_status": "nicht_optimiert",
+    }
+
+
+def test_update_character_state_not_found(store) -> None:
+    assert characters.update_character_state("Unbekannt", chapter=1) == {
+        "status": "not_found",
+        "name": "Unbekannt",
+    }
+
+
+def test_get_knowledge_state_falls_back_to_latest_earlier_chapter(store) -> None:
+    characters.update_character_state("David", chapter=2, knowledge="Weiss von X.")
+    characters.update_character_state("David", chapter=5, knowledge="Weiss von Y.")
+
+    result = characters.get_knowledge_state("David", 4)
+
+    assert result["chapter_state"]["chapter"] == 2
+    assert result["chapter_state"]["knowledge"] == "Weiss von X."
+
+
+def test_get_knowledge_state_uses_exact_chapter_when_available(store) -> None:
+    characters.update_character_state("David", chapter=2, knowledge="Weiss von X.")
+    characters.update_character_state("David", chapter=4, knowledge="Weiss von Y.")
+
+    result = characters.get_knowledge_state("David", 4)
+
+    assert result["chapter_state"]["chapter"] == 4
+    assert result["chapter_state"]["knowledge"] == "Weiss von Y."
+
+
+# --- check_knowledge_prerequisite ---------------------------------------------------
+
+
+def test_check_knowledge_prerequisite_ok_when_knowledge_present(store) -> None:
+    characters.update_character_state(
+        "David", chapter=2, knowledge="Kennt die Diagnose."
+    )
+
+    result = characters.check_knowledge_prerequisite("David", 3, "Diagnose")
+
+    assert result["status"] == "ok"
+
+
+def test_check_knowledge_prerequisite_violation_when_knowledge_missing(store) -> None:
+    characters.update_character_state(
+        "David", chapter=2, knowledge="Kennt nur den Ausbruch."
+    )
+
+    result = characters.check_knowledge_prerequisite("David", 3, "Keimbahn-Mutation")
+
+    assert result["status"] == "violation"
+
+
+def test_check_knowledge_prerequisite_unknown_without_chapter_state(store) -> None:
+    result = characters.check_knowledge_prerequisite("David", 1, "irgendwas")
+    assert result["status"] == "unknown"
+
+
+def test_check_knowledge_prerequisite_not_found(store) -> None:
+    result = characters.check_knowledge_prerequisite("Unbekannt", 1, "x")
+    assert result["status"] == "not_found"
