@@ -1,7 +1,7 @@
 # Bekannter Fehler: `agents-cli eval generate` scheitert bei jedem Agent mit `before_agent_callback`
 
-**Status:** verifiziert, minimal reproduziert, noch nicht öffentlich gemeldet (nur intern
-dokumentiert — siehe Hinweis am Ende).
+**Status:** verifiziert, minimal reproduziert, öffentlich gemeldet:
+[google/agents-cli#82](https://github.com/google/agents-cli/issues/82) (2026-08-24).
 **Betroffene Version:** `agents-cli` 1.4.0 (reproduziert; 1.3.1 zeigt denselben Fehler mit
 gleicher Root Cause im Code, siehe unten).
 **Gefunden im Rahmen von:** `.claude/plans/02-agenten-kern-und-kontinuitaet/` (Plan 2),
@@ -190,8 +190,7 @@ Modell-/Tool-Inhalte tragen) oder (b) mit einem synthetischen leeren `content` v
 einen `ValueError` zu werfen. Alternativ: `content` in `AgentEvent`-Konstruktion optional machen,
 falls die nachgelagerte Datenstruktur das zulaesst.
 
-## Hinweis zur Vertraulichkeit dieses Reports
+## Hinweis
 
-Dieser Report liegt **ausschliesslich lokal** in diesem Repository. Er wurde **nicht** als
-GitHub-Issue oder in anderer Form extern eingereicht -- das ist eine bewusste Entscheidung, die
-dem Projekt-User vorbehalten bleibt.
+Dieser Report wurde am 2026-08-24 als Upstream-Issue eingereicht:
+[google/agents-cli#82](https://github.com/google/agents-cli/issues/82).
