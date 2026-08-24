@@ -23,10 +23,12 @@ bewusst getrennt (siehe TASK-007-Task-Datei):
 - `AgentTool` -- Spezialisten, die innerhalb eines Turns konsultiert werden
   und antworten (Character; spaeter Continuity/Research).
 
-Die Registrierung des Scene Agent als Sub-Agent und das Pipeline-Routing
-("Schreibe 3.2 -> writing_pipeline") folgen in
-`03-szenen-und-lokales-llm/TASK-003`; die Instruction wird dort erweitert,
-nicht neu geschrieben.
+`writing_pipeline` (Plan 3, TASK-003) ist als `sub_agents`-Eintrag registriert
+-- "Schreibe Kapitel N, Szene M" delegiert den gesamten Turn dorthin, die
+Kapitel-/Szenennummer wird dort deterministisch aus der User-Nachricht
+extrahiert (`app/pipelines/writing.py::_set_active_scene_from_user_message`).
+Die Instruction wurde dafuer erweitert, nicht neu geschrieben
+(`app/prompts/orchestrator.py`).
 """
 
 from google.adk.agents import Agent
@@ -41,6 +43,7 @@ from app.agents.editor_agent import create_editor_agent
 from app.agents.plot_agent import create_plot_agent
 from app.callbacks import initialize_state
 from app.models.router import model_for
+from app.pipelines.writing import create_writing_pipeline
 from app.prompts.orchestrator import ORCHESTRATOR_INSTRUCTION
 from app.tools.context_loader import load_plot_outline
 from app.tools.manuscript import chapter_stats, list_chapters
@@ -74,7 +77,7 @@ root_agent = Agent(
     model=_wrap_model(MODEL),
     description="Koordiniert die Buch-Agenten fuer das Projekt Life Link.",
     instruction=ORCHESTRATOR_INSTRUCTION,
-    sub_agents=[create_plot_agent(), create_editor_agent()],
+    sub_agents=[create_plot_agent(), create_editor_agent(), create_writing_pipeline()],
     tools=[
         AgentTool(create_character_agent()),
         list_chapters,

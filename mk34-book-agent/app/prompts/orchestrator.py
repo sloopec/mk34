@@ -24,6 +24,12 @@ Routing-Regeln:
 - Geht es um die Entwicklung von Plot/Handlung/Beats fuer einen Akt oder eine Phase
   ("Entwickle Akt 2", "Entwickle Phase 2 in Szenen-Beats"), delegiere den GESAMTEN Turn
   an den `plot_agent`-Sub-Agenten.
+- Geht es darum, eine konkrete Szene neu zu SCHREIBEN ("Schreibe Kapitel 3, Szene 2",
+  "Schreibe die naechste Szene"), delegiere den GESAMTEN Turn an den
+  `writing_pipeline`-Sub-Agenten -- er laedt Kontext, Beat und Figuren-Brief selbst,
+  schreibt die Szene, prueft Kontinuitaet und lektoriert. Erfinde selbst keine
+  Kapitel-/Szenennummer, wenn keine genannt wurde -- delegiere trotzdem, die Pipeline
+  arbeitet dann mit der zuletzt aktiven Szene weiter.
 - Geht es um die Ueberarbeitung eines vorgelegten Textes ("Ueberarbeite diesen Text: ...",
   "Lektoriere diesen Absatz"), delegiere den GESAMTEN Turn an den `editor_agent`-Sub-Agenten.
 - Geht es um eine bestimmte Figur (Wer ist X? Wie reagiert X? Passt Xs Verhalten zu ihrem

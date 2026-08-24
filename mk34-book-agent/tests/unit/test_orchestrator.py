@@ -35,9 +35,9 @@ def test_app_name_matches_agent_directory() -> None:
     assert app.name == "app"
 
 
-def test_root_agent_has_plot_and_editor_as_sub_agents() -> None:
+def test_root_agent_has_plot_editor_and_writing_pipeline_as_sub_agents() -> None:
     sub_agent_names = {a.name for a in root_agent.sub_agents}
-    assert sub_agent_names == {"plot_agent", "editor_agent"}
+    assert sub_agent_names == {"plot_agent", "editor_agent", "writing_pipeline"}
 
 
 def test_root_agent_has_character_agent_as_agent_tool() -> None:
