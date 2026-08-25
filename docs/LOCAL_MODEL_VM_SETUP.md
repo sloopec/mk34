@@ -491,3 +491,52 @@ Drei Verschluesselungsschichten:
 | Typische Szene (1000 Woerter) | 2-5 Minuten |
 
 Die Geschwindigkeit ist fuer den Szenen-Schreib-Workflow ausreichend, da die Ergebnisse ohnehin vom Editor-Agent (Opus) nachbearbeitet werden.
+
+## Performance-Tuning fuer die lokale Route (Plan 3, TASK-004)
+
+Ergaenzung zu Schritt 6/7 oben, mit Bezug auf `docs LOCAL_MODEL_VM_SETUP.md` ->
+Erwartete Performance und den Klassifikations-/Routing-Code in
+`app/pipelines/writing.py`/`app/models/router.py`.
+
+### Streaming
+
+Streaming ist auf App-Ebene bereits aktiv, keine zusaetzliche Konfiguration in
+`app/`/`app/models/router.py` noetig: `agents-cli run`/`agents-cli playground` sowie
+jeder ADK-FastAPI-Server sprechen standardmaessig `/run_sse` (Server-Sent Events) --
+siehe auch `docs/known-issues/agents-cli-eval-generate-missing-content.md`, das
+denselben `/run_sse`-Pfad dokumentiert. `LiteLlm.generate_content_async(stream=...)`
+wird vom ADK-Runner selbst mit `stream=True` aufgerufen, sobald der Aufruf ueber
+diesen SSE-Pfad laeuft (siehe `LiteLlm`-Quelltext-Kommentar "public api called from
+runner determines to stream or not"). Fuer die 2-5-minuetige lokale Generierung
+bedeutet das: die Autorin/der Autor sieht den Szenentext bereits waehrend der
+Generierung wachsen, statt 2-5 Minuten auf eine einzelne Antwort zu warten.
+
+### `--ctx-size` und `--threads`
+
+Die in Schritt 6.1 vorgeschlagenen Werte (`--ctx-size 16384 --threads 8`) sind ein
+vernuenftiger Startpunkt fuer 8 CPU-Kerne. Konkrete Empfehlungen fuer den
+Szenen-Schreib-Workflow:
+
+- **`--ctx-size`**: 16384 Tokens reichen fuer eine einzelne Szene (Systemprompt +
+  `world_bible.md` + `style_guide.md` + Beat + Figuren-Brief + generierte Szene,
+  ueblicherweise deutlich unter 8000 Tokens gesamt). Nur bei sehr langen Kapiteln mit
+  vielen vorherigen Szenen im Kontext (`read_manuscript`-Tool-Aufrufe) auf 32768
+  erhoehen -- verdoppelt aber den RAM-Bedarf fuer den KV-Cache.
+- **`--threads`**: auf die tatsaechliche physische Kernzahl der VM setzen (`nproc` in
+  der VM), nicht die logische/Hyperthread-Zahl -- llama.cpp skaliert auf ARM/Apple
+  Silicon typischerweise nicht linear ueber physische Kerne hinaus.
+
+### Kontext-Caching fuer stabile Kanon-Teile
+
+`world_bible.md` und `style_guide.md` (geladen ueber `load_scene_context`,
+`app/tools/context_loader.py`) sind fuer JEDE Szene identisch -- sie bilden einen
+stabilen Prompt-Praefix. llama-server unterstuetzt Prompt-Caching (KV-Cache-
+Wiederverwendung fuer identische Praefixe) automatisch, solange der Praefix
+Byte-fuer-Byte gleich bleibt UND `--parallel 1` gesetzt ist (bereits Default in
+Schritt 6.1) -- ein einzelner Slot behaelt seinen Cache zwischen Anfragen. Wichtig
+fuer die Praxis: der Systemprompt/die Instruction des Scene Agent
+(`app/prompts/scene.py::SCENE_INSTRUCTION`) muss als fester Text VOR den variablen
+Teilen (`{scene_context}`, `{scene_beat}`, `{character_brief}`) im finalen Prompt
+stehen, damit der stabile Anteil tatsaechlich als gemeinsamer Praefix erkannt wird --
+das ist bereits so aufgebaut (ADK haengt State-Interpolationen an die feste
+Instruction an, nicht davor).

@@ -1,13 +1,103 @@
+# mk34 Eval-Grundgeruest (Plan 2, TASK-003).
+#
+# Entscheidung E1: Grading laeuft vollstaendig lokal -- kein GCP-Projekt, kein
+# `agents-cli login`. metrics_to_run enthaelt ausschliesslich Eintraege aus
+# custom_metrics (execution: local, Default); managed Built-in-Metriken
+# entfallen bewusst.
+#
+# Entscheidung E4 + E6: zweistufiger Judge (fast/craft), Start auf Gemini.
+# Die Modellwahl liegt an der Rubrik (tier-Frontmatter in
+# mk34_eval/rubrics/*.md), nicht am Call-Site -- siehe mk34_eval/judge.py.
+#
+# `safety` steht bewusst NICHT in metrics_to_run: widerspricht dem
+# unzensierten Szenen-Use-Case (Plan 3, siehe .claude/plans/README.md -> E10)
+# -- auch keine lokale Nachbildung.
+# TASK-010: tool_use_quality/trajectory_quality/eli5_quality ergaenzen die
+# TASK-003-Baseline um Trajektorie-/Tool-Metriken (Plan-2-Gate: "nimmt das
+# System den richtigen Weg", nicht nur "liefert der Agent eine gute Antwort").
+# TASK-011: grounding prueft, ob der Continuity Agent Konflikte belegt statt
+# frei erfindet (nur relevant fuer continuity.json-Laeufe, aber unschaedlich
+# und billig auf anderen Datasets).
+# TASK-013: world_rule_compliance prueft, ob der Continuity Agent die 10
+# nummerierten Naniten-Weltregeln (world_bible.md, Abschnitt 3) korrekt
+# anwendet -- deterministische Treffer (validate_world_rules) uebernimmt und
+# semantische Verstoesse konkret belegt.
+# Plan 3/TASK-005: show_dont_tell (craft-Judge), plus drei deterministische
+# Szenen-Metriken (scene_word_count_in_range, pov_character_present,
+# terminology_leak) fuer die Szenen-Eval-Suite (scene-writing.json,
+# spaeter uncensored-routing.json). safety bleibt bewusst aussen vor (siehe
+# oben) -- auf der Szenen-Suite erst recht.
+# Plan 3/TASK-004/005 (Stufe B): correct_route prueft nicht den Szenentext,
+# sondern state["route"] aus dem Trace gegen die im eval_case_id-Praefix
+# kodierte erwartete Route (uncensored-routing.json). Auf scene-writing.json
+# harmlos/uninformativ (kein local_/cloud_-Praefix -> score 0 mit klarer
+# Erklaerung), daher unschaedlich global registriert wie grounding/
+# world_rule_compliance oben.
 metrics_to_run:
-  - custom_response_quality
+  - task_success
+  - character_voice_consistency
+  - no_placeholder_text
+  - tool_use_quality
+  - trajectory_quality
+  - eli5_quality
+  - grounding
+  - world_rule_compliance
+  - show_dont_tell
+  - scene_word_count_in_range
+  - pov_character_present
+  - terminology_leak
+  - correct_route
 
 custom_metrics:
-  # Default: local LLM-as-judge (see response_quality.py). Runs in-process via
-  # google-genai on Agent Platform (ADC) or Google AI Studio (GEMINI_API_KEY).
-  - name: custom_response_quality
-    custom_function_file: response_quality.py
-  - name: agent_turn_count
+  - name: task_success
+    custom_function_file: task_success_metric.py
+
+  - name: character_voice_consistency
+    custom_function_file: character_voice_consistency_metric.py
+
+  - name: tool_use_quality
+    custom_function_file: tool_use_quality_metric.py
+
+  - name: trajectory_quality
+    custom_function_file: trajectory_quality_metric.py
+
+  - name: eli5_quality
+    custom_function_file: eli5_quality_metric.py
+
+  - name: grounding
+    custom_function_file: grounding_metric.py
+
+  - name: world_rule_compliance
+    custom_function_file: world_rule_compliance_metric.py
+
+  - name: show_dont_tell
+    custom_function_file: show_dont_tell_metric.py
+
+  - name: scene_word_count_in_range
+    custom_function_file: scene_word_count_in_range_metric.py
+
+  - name: pov_character_present
+    custom_function_file: pov_character_present_metric.py
+
+  - name: terminology_leak
+    custom_function_file: terminology_leak_metric.py
+
+  # Deterministisch, kein LLM-Aufruf: prueft auf typische Platzhalter-Fehler.
+  - name: no_placeholder_text
     custom_function: |
+      import re
+
       def evaluate(instance):
-          turns = (instance.get("agent_data") or {}).get("turns", [])
-          return {'score': len(turns)}
+          response = instance.get("response") or ""
+          if isinstance(response, dict):
+              parts = response.get("parts", [])
+              text = " ".join(
+                  p.get("text", "") for p in parts if isinstance(p, dict) and p.get("text")
+              )
+          else:
+              text = str(response)
+          forbidden = [r"\[TODO\]", r"\[Name", r"Lorem ipsum", r"\bLorem\b"]
+          hits = [p for p in forbidden if re.search(p, text, re.IGNORECASE)]
+          if hits:
+              return {"score": 0, "explanation": f"Platzhalter gefunden: {hits}"}
+          return {"score": 1, "explanation": "Kein Platzhaltertext gefunden."}

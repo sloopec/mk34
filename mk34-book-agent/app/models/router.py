@@ -21,20 +21,52 @@ agent module should ever write a raw model string.
 Entscheidung E6 (Gemini-first, siehe `.claude/plans/01-fundament-und-kontext/
 plan.md`): der Start erfolgt ausschliesslich mit Gemini, ADK-nativ als
 Modell-String, ohne LiteLLM-Umweg. Claude (via LiteLLM) und das lokale
-Modell bleiben als konfigurierbare Alternativen im Design -- die
-Provider-Erkennung unten ist bereits dafuer vorbereitet, auch wenn in
-diesem Plan nur der Gemini-Zweig tatsaechlich benutzt wird.
+Modell bleiben als konfigurierbare Alternativen im Design.
+
+**Lokales Modell (Plan 3, TASK-001):** einzig die Rolle `"scene"` darf auf
+die lokale Route (`route="local"`) wechseln -- das unzensierte
+`supergemma4-26b-abliterated` via llama.cpp/llama-server, angebunden ueber
+SSH-Tunnel (`docs/LOCAL_MODEL_VM_SETUP.md`). `model_for()` selbst kennt
+keine ADK-`InvocationContext`/Session-State -- ADKs `Agent.model` wird einmal
+bei der Agent-Konstruktion aufgeloest (siehe `LlmAgent.canonical_model`,
+kein Callable-Support), waehrend `state["route"]` erst zur Laufzeit vom
+Classifier (Plan 3, TASK-004) gesetzt wird. Die Aufloesung von "welches
+Modell fuer *diese* Anfrage" ist deshalb zweigeteilt:
+- `model_for(role, route=...)` ist die reine, testbare Aufloesungsfunktion
+  hier (Rolle + optionale explizite Route -> `str | BaseLlm`).
+- Die eigentliche Pro-Turn-Neuaufloesung (State lesen, `model_for` erneut
+  aufrufen, eine frische `Agent`-Instanz bauen) uebernimmt der Aufrufer zur
+  Laufzeit -- ab TASK-004 ein dediziertes `BaseAgent`-Wrapper-Pattern in
+  `app/pipelines/writing.py`, analog zu den bereits vorhandenen
+  `BaseAgent`-Subklassen (`_SceneSlotFixture`, `QualityChecker`).
+
+Ohne explizite `route` faellt `model_for("scene", ...)` auf die Cloud-Route
+zurueck (`MK34_MODEL_SCENE`) -- das ist Stufe A (Plan 3, TASK-002/003): der
+Schreib-Workflow ist ohne VM und ohne Classifier lauffaehig.
+
+**Refusal-Erkennung (Plan 3, TASK-004, Entscheidung E9):** `is_refusal()`
+lebt bewusst hier (nicht im Pipeline-Code) -- "die Erkennung lebt an einer
+Stelle, damit die Provider-Umschaltung (E6) sie nicht dupliziert". Sie deckt
+sowohl das ADK-normalisierte `LlmResponse` (`finish_reason`, `error_code` --
+siehe `google.adk.models.llm_response.LlmResponse`, das `prompt_feedback.
+block_reason` bereits in `error_code` abbildet) als auch rohe Provider-Shapes
+(Gemini: `candidates[].finish_reason`, `prompt_feedback.block_reason`;
+Claude: `stop_reason`) per Duck-Typing ab -- ein `is_refusal`-Aufruf
+funktioniert also unabhaengig davon, ob er gegen ein ADK-`LlmResponse`-Objekt
+oder eine rohe SDK-Antwort laeuft.
 """
 
 from __future__ import annotations
 
+import urllib.error
+import urllib.request
+import warnings
 from typing import TYPE_CHECKING
 
 from app.config import Settings, get_settings
 
 if TYPE_CHECKING:
     from google.adk.models import BaseLlm
-
 
 # Rolle -> Tier. Jede Rolle, die ein Agent-Modul spaeter braucht, muss hier
 # eingetragen sein -- `model_for` lehnt unbekannte Rollen explizit ab statt
@@ -51,35 +83,39 @@ ROLE_TIERS: dict[str, str] = {
     "scene": "scene",
 }
 
+# Einzige Rolle, fuer die die lokale Route ueberhaupt angefordert werden darf
+# (von Anfang an entschieden, siehe plan.md -> Ziele).
+_LOCAL_ELIGIBLE_ROLE = "scene"
 
-def model_for(role: str, settings: Settings | None = None) -> str | BaseLlm:
-    """Resolves an agent role to a concrete model.
+_HEALTH_CHECK_TIMEOUT_SECONDS = 2.0
+
+
+def local_model_available(settings: Settings | None = None) -> bool:
+    """Preflight-Health-Check gegen `MK34_LOCAL_HEALTH_URL`.
+
+    Liefert **immer** `bool` -- niemals eine Exception, egal ob die VM/der
+    SSH-Tunnel nicht laeuft, das Netzwerk nicht erreichbar ist oder die URL
+    ungueltig konfiguriert ist (Akzeptanzkriterium TASK-001).
 
     Args:
-        role: One of `ROLE_TIERS` (e.g. `"orchestrator"`, `"plot"`, `"scene"`).
-        settings: Optional explicit `Settings` instance, mainly for tests.
-            Defaults to the process-wide cached settings.
+        settings: Optionale explizite `Settings`-Instanz, primaer fuer Tests.
 
     Returns:
-        A bare Gemini model-ID string for `gemini-*` models (ADK-native, no
-        wrapper), or a `LiteLlm` instance for `anthropic/*` models.
-
-    Raises:
-        ValueError: Unknown role or unrecognized provider prefix.
-        NotImplementedError: The role resolves to the local model, which is
-            not wired up in this plan (see `03-szenen-und-lokales-llm/TASK-001`).
-        RuntimeError: The resolved model is a Gemini model but `GEMINI_API_KEY`
-            is not set -- no silent fallback to another provider/model.
+        `True`, wenn der Health-Endpoint mit einem 2xx-Status antwortet,
+        sonst `False`.
     """
-    if role not in ROLE_TIERS:
-        raise ValueError(
-            f"Unbekannte Rolle: {role!r}. Bekannte Rollen: {sorted(ROLE_TIERS)}"
-        )
-    tier = ROLE_TIERS[role]
-
     settings = settings or get_settings()
-    model_id = settings.model_for_tier(tier)
+    try:
+        with urllib.request.urlopen(
+            settings.mk34_local_health_url, timeout=_HEALTH_CHECK_TIMEOUT_SECONDS
+        ) as response:
+            return 200 <= response.status < 300
+    except (urllib.error.URLError, OSError, ValueError):
+        return False
 
+
+def _resolve_cloud_model(model_id: str, settings: Settings) -> str | BaseLlm:
+    """Aufloesung eines Cloud-Modell-Strings (Gemini oder Anthropic)."""
     if model_id.startswith("gemini-"):
         if not settings.gemini_api_key:
             raise RuntimeError(
@@ -95,10 +131,164 @@ def model_for(role: str, settings: Settings | None = None) -> str | BaseLlm:
 
         return LiteLlm(model=model_id)
 
-    if model_id == "local":
-        raise NotImplementedError(
-            "Lokales LLM ist in diesem Plan nicht angebunden -- siehe "
-            "03-szenen-und-lokales-llm/TASK-001 (erweitert diesen Router)."
+    raise ValueError(f"Unbekannter Provider fuer Modell-ID {model_id!r}")
+
+
+def _resolve_local_scene_model(settings: Settings) -> BaseLlm:
+    """Aufloesung der lokalen Route fuer die Rolle `scene`.
+
+    Kein stiller Cloud-Fallback (TASK-001-Akzeptanzkriterium): ist die VM
+    nicht erreichbar, bricht dieser Aufruf mit einer Handlungsanweisung ab,
+    es sei denn `MK34_ALLOW_CLOUD_FALLBACK=true` ist explizit gesetzt -- dann
+    wird auf die Cloud-Route (`MK34_MODEL_SCENE`) zurueckgefallen, mit einer
+    unuebersehbaren Warnung.
+    """
+    if local_model_available(settings):
+        from google.adk.models.lite_llm import LiteLlm
+
+        return LiteLlm(
+            model=settings.mk34_local_model,
+            api_base=settings.mk34_local_api_base,
+            api_key=settings.mk34_local_api_key,
         )
 
-    raise ValueError(f"Unbekannter Provider fuer Modell-ID {model_id!r}")
+    if settings.mk34_allow_cloud_fallback:
+        warnings.warn(
+            "Lokales Modell nicht erreichbar (MK34_LOCAL_HEALTH_URL="
+            f"{settings.mk34_local_health_url!r}). MK34_ALLOW_CLOUD_FALLBACK=true "
+            "ist gesetzt -- falle auf die Cloud-Route (MK34_MODEL_SCENE) zurueck. "
+            "Achtung: eine als 'local' klassifizierte (unzensierte) Szene auf "
+            "einem Cloud-Modell endet moeglicherweise in einer Refusal oder "
+            "abgeschwaechtem Text (siehe plan.md -> Stufe B).",
+            stacklevel=2,
+        )
+        cloud_model_id = settings.mk34_model_scene
+        if cloud_model_id == "local":
+            raise RuntimeError(
+                "Cloud-Fallback nicht moeglich: MK34_MODEL_SCENE ist selbst auf "
+                "'local' gesetzt, es gibt also kein konfiguriertes Cloud-Modell "
+                "fuer die Rolle 'scene'. Bitte MK34_MODEL_SCENE auf ein "
+                "Cloud-Modell setzen oder die VM starten."
+            )
+        return _resolve_cloud_model(cloud_model_id, settings)
+
+    raise RuntimeError(
+        "Lokales Modell nicht erreichbar (MK34_LOCAL_HEALTH_URL="
+        f"{settings.mk34_local_health_url!r}). Kein stiller Cloud-Fallback "
+        "(MK34_ALLOW_CLOUD_FALLBACK=false, Default). Handlungsanweisung: VM "
+        "starten -- siehe docs/LOCAL_MODEL_VM_SETUP.md "
+        "(scripts/start_local_model.sh) bzw. den SSH-Tunnel "
+        "'ssh -f -N mk34-vm-tunnel' oeffnen. Alternativ explizit "
+        "MK34_ALLOW_CLOUD_FALLBACK=true setzen, um mit Warnung auf die "
+        "Cloud-Route auszuweichen."
+    )
+
+
+def model_for(
+    role: str, settings: Settings | None = None, route: str | None = None
+) -> str | BaseLlm:
+    """Resolves an agent role to a concrete model.
+
+    Args:
+        role: One of `ROLE_TIERS` (e.g. `"orchestrator"`, `"plot"`, `"scene"`).
+        settings: Optional explicit `Settings` instance, mainly for tests.
+            Defaults to the process-wide cached settings.
+        route: Optional explicit route override (`"local"` or `"cloud"`),
+            e.g. `state["route"]` as set by the content classifier (Plan 3,
+            TASK-004) or a manual `--model local`/`--model cloud` override.
+            Only meaningful for `role="scene"`. Without it, `role="scene"`
+            resolves to the cloud tier (`MK34_MODEL_SCENE`), unless
+            `MK34_MODEL_SCENE` is itself configured as the literal value
+            `"local"` (config-level force, independent of any classifier).
+
+    Returns:
+        A bare Gemini model-ID string for `gemini-*` models (ADK-native, no
+        wrapper), or a `LiteLlm` instance for `anthropic/*` models or the
+        local model.
+
+    Raises:
+        ValueError: Unknown role, unrecognized provider prefix, or the local
+            route was requested for a role other than `"scene"`.
+        RuntimeError: The resolved model is a Gemini model but `GEMINI_API_KEY`
+            is not set, or the local route was requested but the VM/tunnel is
+            not reachable and no cloud fallback is permitted -- no silent
+            fallback to another provider/model in either case.
+    """
+    if role not in ROLE_TIERS:
+        raise ValueError(
+            f"Unbekannte Rolle: {role!r}. Bekannte Rollen: {sorted(ROLE_TIERS)}"
+        )
+    tier = ROLE_TIERS[role]
+    settings = settings or get_settings()
+    model_id = settings.model_for_tier(tier)
+
+    wants_local = route == "local" or (route is None and model_id == "local")
+
+    if wants_local:
+        if role != _LOCAL_ELIGIBLE_ROLE:
+            raise ValueError(
+                f"Rolle {role!r} darf die lokale Route nicht anfordern -- das "
+                f"lokale Modell ist ausschliesslich fuer die Rolle "
+                f"{_LOCAL_ELIGIBLE_ROLE!r} vorgesehen (siehe plan.md -> Ziele)."
+            )
+        return _resolve_local_scene_model(settings)
+
+    if model_id == "local":
+        # route wurde explizit auf "cloud" gesetzt, obwohl MK34_MODEL_SCENE
+        # (Config-Default) "local" ist -- es gibt kein separates Cloud-Modell
+        # fuer diesen Fall, also klarer Fehler statt stiller Annahme.
+        raise ValueError(
+            "MK34_MODEL_SCENE ist auf 'local' gesetzt, aber route='cloud' wurde "
+            "angefordert -- kein separates Cloud-Modell fuer diesen Fall "
+            "konfiguriert. Bitte MK34_MODEL_SCENE auf ein Cloud-Modell setzen."
+        )
+
+    return _resolve_cloud_model(model_id, settings)
+
+
+_REFUSAL_FINISH_REASONS = {"SAFETY", "PROHIBITED_CONTENT"}
+
+
+def _is_refusal_finish_reason(finish_reason: object) -> bool:
+    if finish_reason is None:
+        return False
+    name = getattr(finish_reason, "name", finish_reason)
+    return str(name).upper() in _REFUSAL_FINISH_REASONS
+
+
+def is_refusal(response: object) -> bool:
+    """Detects a provider refusal/safety-block signal (Entscheidung E9).
+
+    Provider-agnostic via duck-typing -- accepts an ADK-normalized
+    `google.adk.models.llm_response.LlmResponse`, a raw `google.genai`
+    response, or a raw/stubbed Anthropic-shaped response (`stop_reason`).
+
+    Args:
+        response: The model response to inspect.
+
+    Returns:
+        `True` if any known refusal signal is present:
+        - Claude: `response.stop_reason == "refusal"`.
+        - Gemini: `finish_reason` `SAFETY`/`PROHIBITED_CONTENT` on the
+          response itself (ADK's normalized `LlmResponse`) or on any of
+          `response.candidates` (raw `google.genai` response).
+        - Gemini prompt-level block: no candidates, but
+          `response.prompt_feedback.block_reason` set, or ADK's normalized
+          `LlmResponse.error_code` set (ADK maps `block_reason` there).
+    """
+    if getattr(response, "stop_reason", None) == "refusal":
+        return True
+
+    if _is_refusal_finish_reason(getattr(response, "finish_reason", None)):
+        return True
+    for candidate in getattr(response, "candidates", None) or []:
+        if _is_refusal_finish_reason(getattr(candidate, "finish_reason", None)):
+            return True
+
+    if getattr(response, "error_code", None):
+        return True
+    prompt_feedback = getattr(response, "prompt_feedback", None)
+    if getattr(prompt_feedback, "block_reason", None):
+        return True
+
+    return False

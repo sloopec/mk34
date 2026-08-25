@@ -1,0 +1,38 @@
+{
+  "eval_cases": [
+    {
+      "eval_case_id": "beat_development",
+      "prompt": {
+        "role": "user",
+        "parts": [{"text": "Entwickle die Beats fuer Phase 3 (Die Flucht)."}]
+      }
+    },
+    {
+      "eval_case_id": "character_brief",
+      "prompt": {
+        "role": "user",
+        "parts": [{
+          "text": "Wie reagiert David, wenn er zur 'Toten Zone' (Sarahs Kommune) flieht? Beruecksichtige seinen Wissensstand aus Phase 2 -- er kennt die Diagnose von Dr. Aris, aber noch nicht die Keimbahn-Mutation."
+        }]
+      }
+    },
+    {
+      "eval_case_id": "editorial_revision",
+      "prompt": {
+        "role": "user",
+        "parts": [{
+          "text": "Ueberarbeite diesen Text: Markus klopfte an Sophies Tuer. Er sagte ihr, dass seine Naniten wohl einen Programmierfehler haetten und ihn auf sie fixiert haetten."
+        }]
+      }
+    },
+    {
+      "eval_case_id": "beat_brief_editorial_combination",
+      "prompt": {
+        "role": "user",
+        "parts": [{
+          "text": "Ich brauche drei Dinge nacheinander fuer Kapitel 3, Szene 1: Erstens den naechsten Beat fuer Phase 3 (David flieht zu Sarah). Zweitens, sobald der Beat steht, einen Figuren-Brief fuer die POV-Figur dieses Beats. Drittens lektoriere anschliessend folgenden Rohtext, der zu dieser Szene passen soll: 'David erreichte die Kommune. Er sagte Sarah, dass er von Naniten weiss und Angst hat.'"
+        }]
+      }
+    }
+  ]
+}

@@ -1,1 +1,5 @@
 .DS_Store
+
+# mk34 (Entscheidung E2, Plan 2/TASK-011): lokaler SQLite-FTS5-Retrieval-Index,
+# jederzeit aus dem Manuskript reproduzierbar -- nicht versionieren.
+books/*/.index/
